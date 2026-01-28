@@ -1,0 +1,14 @@
+[remap]
+
+importer="stl.importer"
+type="Mesh"
+uid="uid://dsqnocoffywxy"
+path="res://.godot/imported/right_tire.stl-d14ac73b78ecbe918d58f7d40053cb85.mesh"
+
+[deps]
+
+source_file="res://urdf/turtlebot3_description/meshes/wheels/right_tire.stl"
+dest_files=["res://.godot/imported/right_tire.stl-d14ac73b78ecbe918d58f7d40053cb85.mesh"]
+
+[params]
+

@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://dw07evaoowol0"]
+
+[ext_resource type="Script" uid="uid://mu3k1upew0vb" path="res://addons/godot_urdf/urdf_loader.gd" id="1_elqb8"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_qnwvq"]
+
+[node name="Node3D" type="Node3D" unique_id=350618490]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1808740805]
+transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
+mesh = SubResource("PlaneMesh_qnwvq")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=931553358]
+transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 2, 5)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2121456697]
+transform = Transform3D(1, 0, 0, 0, 0.34202015, 0.9396926, 0, -0.9396926, 0.34202015, 0, 2.2377021, 0)
+
+[node name="Robot" type="Node3D" parent="." unique_id=584272485]
+script = ExtResource("1_elqb8")
+urdf_file_path = "res://urdf/turtlebot3_description/turtlebot3_burger.xml"
+package_folder = "res://urdf/"
+
+[node name="turtlebot3_burger" type="Node3D" parent="Robot" unique_id=230524284]

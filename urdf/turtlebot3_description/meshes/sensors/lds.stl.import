@@ -1,0 +1,14 @@
+[remap]
+
+importer="stl.importer"
+type="Mesh"
+uid="uid://cfxruonakrysq"
+path="res://.godot/imported/lds.stl-c57288ebd60c1dffd771f3522000def3.mesh"
+
+[deps]
+
+source_file="res://urdf/turtlebot3_description/meshes/sensors/lds.stl"
+dest_files=["res://.godot/imported/lds.stl-c57288ebd60c1dffd771f3522000def3.mesh"]
+
+[params]
+

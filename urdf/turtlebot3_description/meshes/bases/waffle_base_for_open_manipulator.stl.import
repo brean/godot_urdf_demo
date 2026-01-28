@@ -1,0 +1,14 @@
+[remap]
+
+importer="stl.importer"
+type="Mesh"
+uid="uid://ckpqufpla3sf4"
+path="res://.godot/imported/waffle_base_for_open_manipulator.stl-b234d3a82ac861687661749ed70d5c7e.mesh"
+
+[deps]
+
+source_file="res://urdf/turtlebot3_description/meshes/bases/waffle_base_for_open_manipulator.stl"
+dest_files=["res://.godot/imported/waffle_base_for_open_manipulator.stl-b234d3a82ac861687661749ed70d5c7e.mesh"]
+
+[params]
+

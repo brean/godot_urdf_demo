@@ -1,0 +1,14 @@
+[remap]
+
+importer="stl.importer"
+type="Mesh"
+uid="uid://lcc6301j207m"
+path="res://.godot/imported/burger_base.stl-f1deb144734a634887c7e46238a634e9.mesh"
+
+[deps]
+
+source_file="res://urdf/turtlebot3_description/meshes/bases/burger_base.stl"
+dest_files=["res://.godot/imported/burger_base.stl-f1deb144734a634887c7e46238a634e9.mesh"]
+
+[params]
+

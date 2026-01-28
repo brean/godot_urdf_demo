@@ -1,0 +1,14 @@
+[remap]
+
+importer="stl.importer"
+type="Mesh"
+uid="uid://uflike8yvnqh"
+path="res://.godot/imported/waffle_pi_base.stl-4e595515f488f727a4834ff93250ddd3.mesh"
+
+[deps]
+
+source_file="res://urdf/turtlebot3_description/meshes/bases/waffle_pi_base.stl"
+dest_files=["res://.godot/imported/waffle_pi_base.stl-4e595515f488f727a4834ff93250ddd3.mesh"]
+
+[params]
+
