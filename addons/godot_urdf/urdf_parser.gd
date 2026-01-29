@@ -1,11 +1,11 @@
 class_name URDFXMLParser extends XMLParser
 
 # Helper to recursively set owner for the final scene tree
-func _recursive_set_owner(node: Node, root: Node):
-    if node != root:
-        node.owner = root
+func recursive_set_owner(node: Node3D, target: Node3D):
+    if node != target and target != null:
+        node.owner = target
     for child in node.get_children():
-        _recursive_set_owner(child, root)
+        recursive_set_owner(child, target)
 
 func as_node3d(source_path: String, options: Dictionary) -> Node3D:
     var robot: URDFRobot = parse(source_path, options)
@@ -14,21 +14,27 @@ func as_node3d(source_path: String, options: Dictionary) -> Node3D:
         
     var root_node = Node3D.new()
     root_node.name = robot.name
+    var links_map = {} # Map<LinkName, Node3D>
 
     for link in robot.links:
         var link_node3d = URDF_Link_Node3D.new()
-        root_node.add_child(link_node3d)
-        # link_node3d.owner = root_node
+
         link_node3d.name = link.name
-        
+        root_node.add_child(link_node3d)
+        links_map[link.name] = link_node3d
+
         for visual in link.visuals:
             var visual_instance = MeshInstance3D.new()
+            visual_instance.name = "Visual"
             link_node3d.add_child(visual_instance)
-            visual_instance.owner = root_node
             
             var material = StandardMaterial3D.new()
+            if visual.material_name != "":
+                visual_instance.name = "Visual_" + visual.material_name
+            
             var c = visual.material_color
-            material.albedo_color = Color(c.x, c.y, c.z, c.w)
+            if c != Vector4.ZERO:
+                material.albedo_color = Color(c.x, c.y, c.z, c.w)
             
             visual_instance.position = visual.origin_xyz
             visual_instance.rotation = visual.origin_rpy
@@ -50,6 +56,7 @@ func as_node3d(source_path: String, options: Dictionary) -> Node3D:
                     var sphere_mesh = SphereMesh.new()
                     sphere_mesh.radius = abs(visual.radius)
                     sphere_mesh.height = abs(visual.radius * 2)
+                    sphere_mesh.material = material
                     visual_instance.mesh = sphere_mesh
                 URDFVisual.Type.MESH:
                     # Expected options["package_folder"] to be "res://path/to/urdf_root"
@@ -75,67 +82,88 @@ func as_node3d(source_path: String, options: Dictionary) -> Node3D:
                             visual_instance.rotate_x(-PI / 2)
                         else:
                             visual_instance.scale = Vector3(1, 1, 1)
+                        if c != Vector4.ZERO:
+                            visual_instance.material_override = material
                     else:
                         push_error("Failed to load mesh: ", full_source_path)
                 _:
                     push_error("Unsupported visual type: ", visual.type)
 
-        for collider in link.colliders:
-            var character_body = CharacterBody3D.new()
-            var collision_shape = CollisionShape3D.new()
-            link_node3d.add_child(character_body)
-            # character_body.owner = root_node
-            character_body.add_child(collision_shape)
-            # collision_shape.owner = root_node
+        if link.colliders.size() > 0:
+            var collision_body: CollisionObject3D
             
-            match collider.type:
-                URDFCollider.Type.BOX:
-                    var box_shape = BoxShape3D.new()
-                    box_shape.size = abs(collider.size)
-                    collision_shape.shape = box_shape
-                URDFCollider.Type.CYLINDER:
-                    var cylinder_shape = CylinderShape3D.new()
-                    cylinder_shape.height = abs(collider.length)
-                    cylinder_shape.radius = abs(collider.radius)
-                    collision_shape.shape = cylinder_shape
-                URDFCollider.Type.SPHERE:
-                    var sphere_shape = SphereShape3D.new()
-                    sphere_shape.radius = abs(collider.radius)
-                    collision_shape.shape = sphere_shape
-                _:
-                    push_error("Unsupported collider type: ", collider.type)
+            if options.get("create_physics", false):
+                collision_body = RigidBody3D.new()
+                collision_body.freeze = true
+            else:
+                collision_body = StaticBody3D.new()
             
-            character_body.position = collider.origin_xyz
-            character_body.rotation = collider.origin_rpy
+            collision_body.name = "CollisionBody"
+            link_node3d.add_child(collision_body)
+
+            for collider in link.colliders:
+                var collision_shape = CollisionShape3D.new()
+                collision_shape.name = "Collision"
+                
+                collision_body.add_child(collision_shape)
+                
+                match collider.type:
+                    URDFCollider.Type.BOX:
+                        var box_shape = BoxShape3D.new()
+                        box_shape.size = abs(collider.size)
+                        collision_shape.shape = box_shape
+                    URDFCollider.Type.CYLINDER:
+                        var cylinder_shape = CylinderShape3D.new()
+                        cylinder_shape.height = abs(collider.length)
+                        cylinder_shape.radius = abs(collider.radius)
+                        collision_shape.shape = cylinder_shape
+                    URDFCollider.Type.SPHERE:
+                        var sphere_shape = SphereShape3D.new()
+                        sphere_shape.radius = abs(collider.radius)
+                        collision_shape.shape = sphere_shape
+                    _:
+                        push_error("Unsupported collider type: ", collider.type)
+                
+                collision_shape.position = collider.origin_xyz
+                collision_shape.rotation = collider.origin_rpy
 
     for joint in robot.joints:
-        var child_node3d: URDF_Link_Node3D = root_node.find_child(joint.child, true, false)
-        var parent_node3d: URDF_Link_Node3D = root_node.find_child(joint.parent, true, false)
+        var child_node = links_map.get(joint.child)
+        var parent_node = links_map.get(joint.parent)
 
-        if !child_node3d:
+        if !child_node:
             push_warning("Joint child link not found: ", joint.child)
             continue
-        if !parent_node3d:
+        if !parent_node:
             push_warning("Joint parent link not found: ", joint.parent)
             continue
         
         # Reparent
-        child_node3d.get_parent().remove_child(child_node3d)
-        parent_node3d.add_child(child_node3d)
+        child_node.get_parent().remove_child(child_node)
+        parent_node.add_child(child_node)
         
-        child_node3d.position = joint.origin_xyz
-        child_node3d.rotation = joint.origin_rpy
-        match joint.type:
-            "revolute", "continuous":
-                child_node3d.joint_type = child_node3d.JointType.REVOLUTE
-                child_node3d.axis = joint.axis_xyz.normalized()
-            "fixed":
-                child_node3d.joint_type = child_node3d.JointType.FIXED
-            _:
-                push_warning("Unsupported joint type: ", joint.type, " treating as fixed.")
-                child_node3d.joint_type = child_node3d.JointType.FIXED
+        child_node.position = joint.origin_xyz
+        # child_node.rotation = joint.origin_rpy
+        child_node.origin_rpy = joint.origin_rpy
+        child_node.on_angle_change()
+        
+        child_node.name = joint.name
 
-    _recursive_set_owner(root_node, root_node)
+        if "axis" in child_node:
+             child_node.axis = joint.axis_xyz.normalized()
+        if "joint_type" in child_node:
+            match joint.type:
+                "revolute", "continuous":
+                    child_node.joint_type = child_node.JointType.REVOLUTE
+                    # child_node.axis = joint.axis_xyz.normalized()
+                    child_node.axis = joint.axis_xyz
+                "fixed":
+                    child_node.joint_type = child_node.JointType.FIXED
+                _:
+                    push_warning("Unsupported joint type: ", joint.type, " treating as fixed.")
+                    child_node.joint_type = child_node.JointType.FIXED
+
+    # recursive_set_owner(root_node, root_node)
     return root_node
 
 
