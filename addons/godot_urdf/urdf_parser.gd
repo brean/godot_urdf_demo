@@ -24,71 +24,11 @@ func as_node3d(source_path: String, options: Dictionary) -> Node3D:
         links_map[link.name] = link_node3d
 
         for visual in link.visuals:
-            var visual_instance = MeshInstance3D.new()
+            var visual_instance = _create_visual_instance(
+                visual, options, source_path)
             visual_instance.name = "Visual"
             link_node3d.add_child(visual_instance)
             
-            var material = StandardMaterial3D.new()
-            if visual.material_name != "":
-                visual_instance.name = "Visual_" + visual.material_name
-            
-            var c = visual.material_color
-            if c != Vector4.ZERO:
-                material.albedo_color = Color(c.x, c.y, c.z, c.w)
-            
-            visual_instance.position = visual.origin_xyz
-            visual_instance.rotation = visual.origin_rpy
-            
-            match visual.type:
-                URDFVisual.Type.BOX:
-                    var box_mesh = BoxMesh.new()
-                    box_mesh.size = abs(visual.size)
-                    box_mesh.material = material
-                    visual_instance.mesh = box_mesh
-                URDFVisual.Type.CYLINDER:
-                    var cylinder_mesh = CylinderMesh.new()
-                    cylinder_mesh.height = abs(visual.length)
-                    cylinder_mesh.bottom_radius = abs(visual.radius)
-                    cylinder_mesh.top_radius = abs(visual.radius)
-                    cylinder_mesh.material = material
-                    visual_instance.mesh = cylinder_mesh
-                URDFVisual.Type.SPHERE:
-                    var sphere_mesh = SphereMesh.new()
-                    sphere_mesh.radius = abs(visual.radius)
-                    sphere_mesh.height = abs(visual.radius * 2)
-                    sphere_mesh.material = material
-                    visual_instance.mesh = sphere_mesh
-                URDFVisual.Type.MESH:
-                    # Expected options["package_folder"] to be "res://path/to/urdf_root"
-                    var clean_path = visual.mesh_path.replace("package://", "")
-                    var full_source_path = ""
-                    if options.has("package_folder"):
-                        full_source_path = options["package_folder"].path_join(clean_path)
-                    else:
-                        # Fallback: try to find it relative to the URDF file
-                        full_source_path = source_path.get_base_dir().path_join(clean_path)
-
-                    # Check if file exists in Godot project
-                    if !FileAccess.file_exists(full_source_path):
-                        push_error("Mesh not found at: ", full_source_path)
-                        continue
-
-                    var imported_mesh = load(full_source_path)
-                    if imported_mesh:
-                        visual_instance.mesh = imported_mesh
-                        var ext = full_source_path.get_extension().to_lower()
-                        if ext == "stl":
-                            visual_instance.scale = Vector3(0.001, 0.001, 0.001)
-                            visual_instance.rotate_x(-PI / 2)
-                        else:
-                            visual_instance.scale = Vector3(1, 1, 1)
-                        if c != Vector4.ZERO:
-                            visual_instance.material_override = material
-                    else:
-                        push_error("Failed to load mesh: ", full_source_path)
-                _:
-                    push_error("Unsupported visual type: ", visual.type)
-
         if link.colliders.size() > 0:
             var collision_body: CollisionObject3D
             
@@ -102,30 +42,8 @@ func as_node3d(source_path: String, options: Dictionary) -> Node3D:
             link_node3d.add_child(collision_body)
 
             for collider in link.colliders:
-                var collision_shape = CollisionShape3D.new()
-                collision_shape.name = "Collision"
-                
+                var collision_shape = _create_collision_shape(collider)
                 collision_body.add_child(collision_shape)
-                
-                match collider.type:
-                    URDFCollider.Type.BOX:
-                        var box_shape = BoxShape3D.new()
-                        box_shape.size = abs(collider.size)
-                        collision_shape.shape = box_shape
-                    URDFCollider.Type.CYLINDER:
-                        var cylinder_shape = CylinderShape3D.new()
-                        cylinder_shape.height = abs(collider.length)
-                        cylinder_shape.radius = abs(collider.radius)
-                        collision_shape.shape = cylinder_shape
-                    URDFCollider.Type.SPHERE:
-                        var sphere_shape = SphereShape3D.new()
-                        sphere_shape.radius = abs(collider.radius)
-                        collision_shape.shape = sphere_shape
-                    _:
-                        push_error("Unsupported collider type: ", collider.type)
-                
-                collision_shape.position = collider.origin_xyz
-                collision_shape.rotation = collider.origin_rpy
 
     for joint in robot.joints:
         var child_node = links_map.get(joint.child)
@@ -183,11 +101,11 @@ func parse(source_path: String, options: Dictionary) -> URDFRobot:
             if parser.get_node_name() == "robot":
                 robot.name = parser.get_named_attribute_value_safe("name")
                 print("robot name: ", robot.name)
-                parse_robot_children(parser, robot, options)
+                parse_robot_children(parser, robot)
 
     return robot
     
-func parse_robot_children(parser: XMLParser, robot: URDFRobot, options: Dictionary) -> void:
+func parse_robot_children(parser: XMLParser, robot: URDFRobot) -> void:
     while parser.read() == OK:
         var node_type = parser.get_node_type()
         if node_type == XMLParser.NODE_TEXT:
@@ -199,7 +117,7 @@ func parse_robot_children(parser: XMLParser, robot: URDFRobot, options: Dictiona
                 "link":
                     var link_name := parser.get_named_attribute_value_safe("name")
                     print("parsing link: ",  link_name)
-                    robot.links.append(get_urdf_link(parser, options))
+                    robot.links.append(get_urdf_link(parser))
                 "joint":
                     print("parsing joint")
                     robot.joints.append(get_urdf_joint(parser))
@@ -241,7 +159,7 @@ func get_urdf_joint(parser: XMLParser) -> URDFJoint:
                 return joint
     return joint
 
-func get_urdf_link(parser: XMLParser, options: Dictionary) -> URDFLink:
+func get_urdf_link(parser: XMLParser) -> URDFLink:
     var link: URDFLink = URDFLink.new()
     link.name = parser.get_named_attribute_value_safe("name")
     if parser.is_empty():
@@ -256,10 +174,10 @@ func get_urdf_link(parser: XMLParser, options: Dictionary) -> URDFLink:
             match node_name:
                 "visual":
                     print("parsing visual")
-                    link.visuals.append(get_link_visual(parser, options))
+                    link.visuals.append(get_link_visual(parser))
                 "collision":
                     print("parsing collision")
-                    link.colliders.append(get_link_collider(parser, options))
+                    link.colliders.append(get_link_collider(parser))
                 "inertial":
                     # we don't simulate the physics for now so we ignore this.
                     parser.skip_section()
@@ -271,7 +189,7 @@ func get_urdf_link(parser: XMLParser, options: Dictionary) -> URDFLink:
                 return link
     return link
 
-func get_link_collider(parser: XMLParser, options: Dictionary) -> URDFCollider:
+func get_link_collider(parser: XMLParser) -> URDFCollider:
     var collider = URDFCollider.new()
     
     if parser.is_empty():
@@ -287,7 +205,7 @@ func get_link_collider(parser: XMLParser, options: Dictionary) -> URDFCollider:
                 "origin":
                     parse_origin(parser, collider)
                 "geometry":
-                    parse_geometry(parser, collider, options, false)
+                    parse_geometry(parser, collider, false)
                 _:
                     push_error("Unsupported collider for Link: ", node_name)
                     parser.skip_section()
@@ -296,7 +214,7 @@ func get_link_collider(parser: XMLParser, options: Dictionary) -> URDFCollider:
                 return collider
     return collider
 
-func get_link_visual(parser: XMLParser, options: Dictionary) -> URDFVisual:
+func get_link_visual(parser: XMLParser) -> URDFVisual:
     var visual = URDFVisual.new()
     
     if parser.is_empty():
@@ -313,7 +231,7 @@ func get_link_visual(parser: XMLParser, options: Dictionary) -> URDFVisual:
                 "origin":
                     parse_origin(parser, visual)
                 "geometry":
-                    parse_geometry(parser, visual, options, true)
+                    parse_geometry(parser, visual, true)
                 "material":
                     visual.material_name = parser.get_named_attribute_value_safe("name")
                     parse_material(parser, visual)
@@ -365,7 +283,10 @@ func parse_origin(parser: XMLParser, target_object: Object) -> void:
     parse_xyz(parser, target_object)
     parse_rpy(parser, target_object)
 
-func parse_geometry(parser: XMLParser, target_object: Object, options: Dictionary, is_visual: bool) -> void:
+func parse_geometry(
+        parser: XMLParser,
+        target_object: Object,
+        is_visual: bool) -> void:
     if parser.is_empty():
         return
     
@@ -433,3 +354,97 @@ func parse_material(parser: XMLParser, visual: URDFVisual) -> void:
         elif node_type == XMLParser.NODE_ELEMENT_END:
             if parser.get_node_name() == "material":
                 return
+
+
+func _create_visual_instance(
+        visual: URDFVisual,
+        options: Dictionary,
+        source_path: String) -> MeshInstance3D:
+    var visual_instance = MeshInstance3D.new()
+    visual_instance.name = "Visual"
+
+    var material = StandardMaterial3D.new()
+    if visual.material_name != "":
+        visual_instance.name = "Visual_" + visual.material_name
+    
+    var c = visual.material_color
+    if c != Vector4.ZERO:
+        material.albedo_color = Color(c.x, c.y, c.z, c.w)
+    
+    visual_instance.position = visual.origin_xyz
+    visual_instance.rotation = visual.origin_rpy
+    
+    match visual.type:
+        URDFVisual.Type.BOX:
+            var box_mesh = BoxMesh.new()
+            box_mesh.size = abs(visual.size)
+            box_mesh.material = material
+            visual_instance.mesh = box_mesh
+        URDFVisual.Type.CYLINDER:
+            var cylinder_mesh = CylinderMesh.new()
+            cylinder_mesh.height = abs(visual.length)
+            cylinder_mesh.bottom_radius = abs(visual.radius)
+            cylinder_mesh.top_radius = abs(visual.radius)
+            cylinder_mesh.material = material
+            visual_instance.mesh = cylinder_mesh
+        URDFVisual.Type.SPHERE:
+            var sphere_mesh = SphereMesh.new()
+            sphere_mesh.radius = abs(visual.radius)
+            sphere_mesh.height = abs(visual.radius * 2)
+            sphere_mesh.material = material
+            visual_instance.mesh = sphere_mesh
+        URDFVisual.Type.MESH:
+            # Expected options["package_folder"] to be "res://path/to/urdf_root"
+            var clean_path = visual.mesh_path.replace("package://", "")
+            var full_source_path = ""
+            if options.has("package_folder"):
+                full_source_path = options["package_folder"].path_join(clean_path)
+            else:
+                # Fallback: try to find it relative to the URDF file
+                full_source_path = source_path.get_base_dir().path_join(clean_path)
+
+            # Check if file exists in Godot project
+            if !FileAccess.file_exists(full_source_path):
+                push_error("Mesh not found at: ", full_source_path)
+
+            var imported_mesh = load(full_source_path)
+            if imported_mesh:
+                visual_instance.mesh = imported_mesh
+                var ext = full_source_path.get_extension().to_lower()
+                if ext == "stl":
+                    visual_instance.scale = Vector3(0.001, 0.001, 0.001)
+                    visual_instance.rotate_x(-PI / 2)
+                else:
+                    visual_instance.scale = Vector3(1, 1, 1)
+                if c != Vector4.ZERO:
+                    visual_instance.material_override = material
+            else:
+                push_error("Failed to load mesh: ", full_source_path)
+        _:
+            push_error("Unsupported visual type: ", visual.type)
+
+    return visual_instance
+
+func _create_collision_shape(collider: URDFCollider) -> CollisionShape3D:
+    var collision_shape = CollisionShape3D.new()
+    collision_shape.name = "Collision"
+    match collider.type:
+        URDFCollider.Type.BOX:
+            var box_shape = BoxShape3D.new()
+            box_shape.size = abs(collider.size)
+            collision_shape.shape = box_shape
+        URDFCollider.Type.CYLINDER:
+            var cylinder_shape = CylinderShape3D.new()
+            cylinder_shape.height = abs(collider.length)
+            cylinder_shape.radius = abs(collider.radius)
+            collision_shape.shape = cylinder_shape
+        URDFCollider.Type.SPHERE:
+            var sphere_shape = SphereShape3D.new()
+            sphere_shape.radius = abs(collider.radius)
+            collision_shape.shape = sphere_shape
+        _:
+            push_error("Unsupported collider type: ", collider.type)
+    
+    collision_shape.position = collider.origin_xyz
+    collision_shape.rotation = collider.origin_rpy
+    return collision_shape

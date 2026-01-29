@@ -34,100 +34,100 @@ transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
 mesh = SubResource("PlaneMesh_qnwvq")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=931553358]
-transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 2, 5)
+transform = Transform3D(0.42261824, -0.4531539, 0.7848856, 0, 0.8660254, 0.5, -0.9063078, -0.21130912, 0.36599812, 0.20000002, 0.3, 0.09999997)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2121456697]
 transform = Transform3D(1, 0, 0, 0, 0.34202015, 0.9396926, 0, -0.9396926, 0.34202015, 0, 2.2377021, 0)
 
-[node name="Robot" type="Node3D" parent="." unique_id=584272485]
+[node name="Robot" type="Node3D" parent="." unique_id=166371006]
 script = ExtResource("1_elqb8")
 urdf_file_path = "res://urdf/turtlebot3_description/turtlebot3_burger.xml"
 package_folder = "res://urdf/"
 
-[node name="turtlebot3_burger" type="Node3D" parent="Robot" unique_id=1205858157]
+[node name="turtlebot3_burger" type="Node3D" parent="Robot" unique_id=1277469913]
 
-[node name="base_footprint" type="Node3D" parent="Robot/turtlebot3_burger" unique_id=763926893]
+[node name="base_footprint" type="Node3D" parent="Robot/turtlebot3_burger" unique_id=1769047028]
 script = ExtResource("2_c01mt")
 
-[node name="base_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint" unique_id=862114245]
+[node name="base_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint" unique_id=1537392084]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
 script = ExtResource("2_c01mt")
 joint_type = 1
 axis = Vector3(0, 0, 0)
 
-[node name="Visual_light_black" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1590615787]
+[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=656436484]
 transform = Transform3D(0.001, 0, 0, 0, -4.371139e-11, 0.001, 0, -0.001, -4.371139e-11, -0.032, 0, 0)
 mesh = ExtResource("3_nxtc6")
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1285553390]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1544475855]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/CollisionBody" unique_id=1163545616]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/CollisionBody" unique_id=1500618237]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.07, 0)
 shape = SubResource("BoxShape3D_c01mt")
 
-[node name="wheel_left_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1495403882]
+[node name="wheel_left_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1510205160]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, 0, 0.023, -0.08)
 script = ExtResource("2_c01mt")
 axis = Vector3(0, 1, 0)
 
-[node name="Visual_dark" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint" unique_id=504041308]
+[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint" unique_id=1262389462]
 transform = Transform3D(0.001, 0, 0, 0, 0.0009999997, 7.9631803e-07, 0, -7.9631803e-07, 0.0009999997, 0, 0, 0)
 mesh = ExtResource("4_jlsqs")
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint" unique_id=26813342]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint" unique_id=1110038940]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint/CollisionBody" unique_id=1671653803]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint/CollisionBody" unique_id=728164869]
 shape = SubResource("CylinderShape3D_nxtc6")
 
-[node name="wheel_right_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1755938998]
+[node name="wheel_right_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1604512635]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, 0, 0.023, 0.08)
 script = ExtResource("2_c01mt")
 axis = Vector3(0, 1, 0)
 
-[node name="Visual_dark" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint" unique_id=1427771685]
+[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint" unique_id=1141502134]
 transform = Transform3D(0.001, 0, 0, 0, 0.0009999997, 7.9631803e-07, 0, -7.9631803e-07, 0.0009999997, 0, 0, 0)
 mesh = ExtResource("5_q8u5g")
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint" unique_id=312168505]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint" unique_id=1306416198]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint/CollisionBody" unique_id=2096333068]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint/CollisionBody" unique_id=1588136264]
 shape = SubResource("CylinderShape3D_jlsqs")
 
-[node name="caster_back_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=183713706]
+[node name="caster_back_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=409018800]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, -0.081, -0.004, 0)
 script = ExtResource("2_c01mt")
 joint_type = 1
 axis = Vector3(0, 0, 0)
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/caster_back_joint" unique_id=600723757]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/caster_back_joint" unique_id=1120149344]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/caster_back_joint/CollisionBody" unique_id=157684500]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/caster_back_joint/CollisionBody" unique_id=2078974539]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.001)
 shape = SubResource("BoxShape3D_q8u5g")
 
-[node name="imu_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=744074253]
+[node name="imu_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=361384336]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.068, 0)
 script = ExtResource("2_c01mt")
 joint_type = 1
 axis = Vector3(0, 0, 0)
 
-[node name="scan_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=340556605]
+[node name="scan_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=313838094]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.172, 0)
 script = ExtResource("2_c01mt")
 joint_type = 1
 axis = Vector3(0, 0, 0)
 
-[node name="Visual_dark" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint" unique_id=210051993]
+[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint" unique_id=1315038906]
 transform = Transform3D(0.001, 0, 0, 0, -4.371139e-11, 0.001, 0, -0.001, -4.371139e-11, 0, 0, 0)
 mesh = ExtResource("6_lhr70")
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint" unique_id=220898581]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint" unique_id=1135064987]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint/CollisionBody" unique_id=1378767116]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint/CollisionBody" unique_id=1852884165]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.015, -0.0065, 0)
 shape = SubResource("CylinderShape3D_lhr70")
