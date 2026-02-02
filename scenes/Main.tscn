@@ -44,90 +44,90 @@ script = ExtResource("1_elqb8")
 urdf_file_path = "res://urdf/turtlebot3_description/turtlebot3_burger.xml"
 package_folder = "res://urdf/"
 
-[node name="turtlebot3_burger" type="Node3D" parent="Robot" unique_id=1277469913]
+[node name="turtlebot3_burger" type="Node3D" parent="Robot" unique_id=1411764835]
 
-[node name="base_footprint" type="Node3D" parent="Robot/turtlebot3_burger" unique_id=1769047028]
+[node name="base_footprint" type="Node3D" parent="Robot/turtlebot3_burger" unique_id=1573055543]
 script = ExtResource("2_c01mt")
 
-[node name="base_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint" unique_id=1537392084]
+[node name="base_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint" unique_id=1947885400]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
 script = ExtResource("2_c01mt")
 joint_type = 1
 axis = Vector3(0, 0, 0)
 
-[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=656436484]
+[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1182949998]
 transform = Transform3D(0.001, 0, 0, 0, -4.371139e-11, 0.001, 0, -0.001, -4.371139e-11, -0.032, 0, 0)
 mesh = ExtResource("3_nxtc6")
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1544475855]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=58065093]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/CollisionBody" unique_id=1500618237]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/CollisionBody" unique_id=2107968520]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.07, 0)
 shape = SubResource("BoxShape3D_c01mt")
 
-[node name="wheel_left_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1510205160]
-transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, 0, 0.023, -0.08)
+[node name="wheel_left_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=139316779]
+transform = Transform3D(0.9999983, 0, 0, 0, 0.0007962743, 0.99999803, 0, -0.9999997, 0.00079627294, 0, 0.023, -0.08)
 script = ExtResource("2_c01mt")
 axis = Vector3(0, 1, 0)
 
-[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint" unique_id=1262389462]
+[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint" unique_id=395176013]
 transform = Transform3D(0.001, 0, 0, 0, 0.0009999997, 7.9631803e-07, 0, -7.9631803e-07, 0.0009999997, 0, 0, 0)
 mesh = ExtResource("4_jlsqs")
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint" unique_id=1110038940]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint" unique_id=341503805]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint/CollisionBody" unique_id=728164869]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_left_joint/CollisionBody" unique_id=1483956016]
 shape = SubResource("CylinderShape3D_nxtc6")
 
-[node name="wheel_right_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1604512635]
+[node name="wheel_right_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1311969514]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, 0, 0.023, 0.08)
 script = ExtResource("2_c01mt")
 axis = Vector3(0, 1, 0)
 
-[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint" unique_id=1141502134]
+[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint" unique_id=529367988]
 transform = Transform3D(0.001, 0, 0, 0, 0.0009999997, 7.9631803e-07, 0, -7.9631803e-07, 0.0009999997, 0, 0, 0)
 mesh = ExtResource("5_q8u5g")
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint" unique_id=1306416198]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint" unique_id=1692827198]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint/CollisionBody" unique_id=1588136264]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/wheel_right_joint/CollisionBody" unique_id=68066953]
 shape = SubResource("CylinderShape3D_jlsqs")
 
-[node name="caster_back_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=409018800]
+[node name="caster_back_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=2144151717]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, -0.081, -0.004, 0)
 script = ExtResource("2_c01mt")
 joint_type = 1
 axis = Vector3(0, 0, 0)
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/caster_back_joint" unique_id=1120149344]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/caster_back_joint" unique_id=1567570820]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/caster_back_joint/CollisionBody" unique_id=2078974539]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/caster_back_joint/CollisionBody" unique_id=778055390]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.001)
 shape = SubResource("BoxShape3D_q8u5g")
 
-[node name="imu_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=361384336]
+[node name="imu_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=1588674977]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.068, 0)
 script = ExtResource("2_c01mt")
 joint_type = 1
 axis = Vector3(0, 0, 0)
 
-[node name="scan_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=313838094]
+[node name="scan_joint" type="Node3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint" unique_id=2141784885]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.172, 0)
 script = ExtResource("2_c01mt")
 joint_type = 1
 axis = Vector3(0, 0, 0)
 
-[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint" unique_id=1315038906]
+[node name="Visual" type="MeshInstance3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint" unique_id=1661420165]
 transform = Transform3D(0.001, 0, 0, 0, -4.371139e-11, 0.001, 0, -0.001, -4.371139e-11, 0, 0, 0)
 mesh = ExtResource("6_lhr70")
 
-[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint" unique_id=1135064987]
+[node name="CollisionBody" type="RigidBody3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint" unique_id=1852068590]
 freeze = true
 
-[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint/CollisionBody" unique_id=1852884165]
+[node name="Collision" type="CollisionShape3D" parent="Robot/turtlebot3_burger/base_footprint/base_joint/scan_joint/CollisionBody" unique_id=349572902]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.015, -0.0065, 0)
 shape = SubResource("CylinderShape3D_lhr70")

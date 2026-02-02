@@ -8,7 +8,7 @@ enum JointType {REVOLUTE, FIXED}
 var origin_rpy: Vector3 = Vector3.ZERO
 
 
-@export_range(-360.0, 360.0, 0.1) var value: float = 0:
+@export_range(0.0, 360.0, 0.1) var value: float = 0:
 	set(_value):
 		value = _value
 		on_angle_change()
@@ -19,6 +19,3 @@ func on_angle_change():
 		JointType.REVOLUTE:
 			# rotate_object_local(axis, value)
 			rotate_object_local(axis.normalized(), deg_to_rad(value))
-
-func _ready() -> void:
-	on_angle_change()

@@ -8,6 +8,7 @@ func recursive_set_owner(node: Node3D, target: Node3D):
 		recursive_set_owner(child, target)
 
 func as_node3d(source_path: String, options: Dictionary) -> Node3D:
+	var start_time = Time.get_ticks_msec()
 	var robot: URDFRobot = parse(source_path, options)
 	if not robot:
 		return null
@@ -79,7 +80,9 @@ func as_node3d(source_path: String, options: Dictionary) -> Node3D:
 					push_warning("Unsupported joint type: ", joint.type, " treating as fixed.")
 					child_node.joint_type = child_node.JointType.FIXED
 
-	# recursive_set_owner(root_node, root_node)
+	var now = Time.get_ticks_msec()
+	var elapsed = (now - start_time) / 1000.0
+	print("Done generating robot, took:", elapsed)
 	return root_node
 
 

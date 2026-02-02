@@ -26,8 +26,9 @@ func _get_preset_name(preset):
 	return "Unknown"
 	
 func _import(source_file: String, save_path: String, options: Dictionary, platform_variants: Array[String], gen_files: Array[String]):
+	var start_time = Time.get_ticks_msec()
+
 	# STL file format: https://web.archive.org/web/20210428125112/http://www.fabbers.com/tech/STL_Format
-	
 	var file := FileAccess.open(source_file, FileAccess.READ)
 	if file == null:
 		return FileAccess.get_open_error()
@@ -43,7 +44,13 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 		process_binary_stl(file, surface_tool)
 	
 	var final_mesh := surface_tool.commit()
-	return ResourceSaver.save(final_mesh, "%s.%s" % [save_path, _get_save_extension()])
+	var res = ResourceSaver.save(final_mesh, "%s.%s" % [save_path, _get_save_extension()])
+	
+	var now = Time.get_ticks_msec()
+	var elapsed = (now - start_time) / 1000.0
+	print("Done importing", source_file, " took:", elapsed)
+	
+	return res
 	
 func is_ascii_stl(file: FileAccess):
 	# binary STL has a 80 character header which cannot begin with "solid"
@@ -187,7 +194,7 @@ func process_ascii_stl(file: FileAccess, surface_tool: SurfaceTool):
 				
 				# add the vertex at the front of the array 
 				# this way we don't have to loop over the array in reverse
-                # to add the vertices to the mesh
-                vertices.insert(0, Vector3(x, y, z))
+				# to add the vertices to the mesh
+				vertices.insert(0, Vector3(x, y, z))
 
 enum PARSE_STATE {SOLID, FACET, OUTER_LOOP}
