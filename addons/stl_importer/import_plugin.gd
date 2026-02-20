@@ -6,6 +6,9 @@ func _get_priority():
 
 func _get_importer_name():
 	return "stl.importer"
+
+func _get_import_order():
+	return 0
 	
 func _get_visible_name():
 	return "STL Importer"
