@@ -1,6 +1,9 @@
 @tool
 extends EditorImportPlugin
 
+func _get_priority():
+	return 1.0
+
 func _get_importer_name():
 	return "stl.importer"
 	
@@ -37,10 +40,10 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
 	if is_ascii_stl(file):
-		print("load ascii file", source_file)
+		# print("load ascii file ", source_file)
 		process_ascii_stl(file, surface_tool)
 	else:
-		print("load binary file", source_file)
+		# print("load binary file ", source_file)
 		process_binary_stl(file, surface_tool)
 	
 	var final_mesh := surface_tool.commit()
@@ -48,7 +51,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	
 	var now = Time.get_ticks_msec()
 	var elapsed = (now - start_time) / 1000.0
-	print("Done importing", source_file, " took:", elapsed)
+	print("Done importing ", source_file, " took: ", elapsed)
 	
 	return res
 	
