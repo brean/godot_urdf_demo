@@ -7,7 +7,6 @@
 [ext_resource type="ArrayMesh" uid="uid://lcc6301j207m" path="res://urdf/turtlebot3_description/meshes/bases/burger_base.stl" id="4_lhr70"]
 [ext_resource type="ArrayMesh" uid="uid://dsqnocoffywxy" path="res://urdf/turtlebot3_description/meshes/wheels/right_tire.stl" id="5_q8u5g"]
 [ext_resource type="ArrayMesh" uid="uid://cfxruonakrysq" path="res://urdf/turtlebot3_description/meshes/sensors/lds.stl" id="6_lhr70"]
-[ext_resource type="PackedScene" uid="uid://lmmmkewvy8l7" path="res://scenes/spot.tscn" id="9_bjd11"]
 [ext_resource type="PackedScene" uid="uid://d3xryeq4scqid" path="res://urdf/turtlebot3_description/turtlebot3_waffle.urdf" id="9_q8u5g"]
 [ext_resource type="Script" uid="uid://cbtkm3l23wc3r" path="res://addons/godot_urdf/robot_controller.gd" id="9_wp0k4"]
 [ext_resource type="PackedScene" uid="uid://ov6otpheq8va" path="res://urdf/turtlebot3_description/turtlebot3_burger.urdf" id="10_lhr70"]
@@ -230,9 +229,6 @@ max_speed = 5.0
 mobile_type = 0
 front_left_wheel = "joint_wheel_left_joint"
 front_right_wheel = "joint_wheel_right_joint"
-
-[node name="spot" parent="." unique_id=617828178 instance=ExtResource("9_bjd11")]
-transform = Transform3D(0.9810398, 0, -0.19380632, 0, 1, 0, 0.19380632, 0, 0.9810398, 0.49177122, 0.82906747, -1.8869433)
 
 [node name="turtlebot3_waffle" parent="." unique_id=1701756651 instance=ExtResource("9_q8u5g")]
 transform = Transform3D(0.6701156, 0, -0.7422567, 0, 1, 0, 0.7422567, 0, 0.6701156, -0.6419656, -9.685755e-08, -0.34358263)
