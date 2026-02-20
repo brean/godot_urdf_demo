@@ -1,0 +1,15 @@
+[remap]
+
+importer="godot_urdf"
+type="PackedScene"
+uid="uid://d3xryeq4scqid"
+path="res://.godot/imported/turtlebot3_waffle.urdf-2c5ab5951cc5a13c60ba113026b5199f.tscn"
+
+[deps]
+
+source_file="res://urdf/turtlebot3_description/turtlebot3_waffle.urdf"
+dest_files=["res://.godot/imported/turtlebot3_waffle.urdf-2c5ab5951cc5a13c60ba113026b5199f.tscn"]
+
+[params]
+
+package_folder="res://urdf"
