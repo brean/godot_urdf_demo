@@ -18,8 +18,8 @@ You can then either use the auto-loaded robot from the URDF or manually create a
 ## Screenshots / Examples
 ### Driving around
 <img width="1920" height="1200" alt="Screenshot from 2026-02-20 17-18-26" src="https://github.com/user-attachments/assets/addfc1b3-90c3-45f4-9fe8-780c24ba3bd0" />
-Fig. 1: The main Scene with the controllable turtlebot in the front.
+Fig. 1: The main Scene with the controllable turtlebot in the front. Note that the original URDF for the Turtlebot 3 defines the caster wheel in the back as box, a sphere would be more realistic.
 
 ### Importing a quadruped
 <img width="1920" height="1200" alt="Screenshot from 2026-02-20 17-15-43" src="https://github.com/user-attachments/assets/586d5640-7d39-4768-8559-0a358ed7a609" />
-Fig 2: The imported Spot Robot from Boston Dynamics (with custom configured collision meshes)
+Fig 2: The imported Spot Robot from Boston Dynamics (with custom configured collision meshes). Note that it is missing a controller so the robot will just collapse in on itself when you put it on any surface.
