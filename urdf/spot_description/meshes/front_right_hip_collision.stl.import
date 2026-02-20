@@ -1,0 +1,14 @@
+[remap]
+
+importer="stl.importer"
+type="Mesh"
+uid="uid://dxqt5nbgnb3xe"
+path="res://.godot/imported/front_right_hip_collision.stl-f8c314db16e92f93299b16f7476e7dd1.mesh"
+
+[deps]
+
+source_file="res://urdf/spot_description/meshes/front_right_hip_collision.stl"
+dest_files=["res://.godot/imported/front_right_hip_collision.stl-f8c314db16e92f93299b16f7476e7dd1.mesh"]
+
+[params]
+

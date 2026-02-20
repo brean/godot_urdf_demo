@@ -1,0 +1,15 @@
+[remap]
+
+importer="godot_urdf"
+type="PackedScene"
+uid="uid://b742kvq074wfs"
+path="res://.godot/imported/spot.urdf-97663c34558cffd7b4b0ae14e6c099e8.tscn"
+
+[deps]
+
+source_file="res://urdf/spot_description/urdf/spot.urdf"
+dest_files=["res://.godot/imported/spot.urdf-97663c34558cffd7b4b0ae14e6c099e8.tscn"]
+
+[params]
+
+package_folder="res://urdf"

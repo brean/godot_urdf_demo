@@ -523,11 +523,10 @@ func _create_visual_instance(
 		visual: URDFVisual,
 		options: Dictionary,
 		source_path: String) -> MeshInstance3D:
-	var visual_instance = MeshInstance3D.new()
+
+	var visual_instance
 
 	var material = StandardMaterial3D.new()
-	if visual.material_name != "":
-		visual_instance.name = "Visual_" + visual.material_name
 	
 	var c = visual.material_color
 	if c != Vector4.ZERO:
@@ -536,14 +535,14 @@ func _create_visual_instance(
 		c = robot.materials[visual.material_name]
 		material.albedo_color = Color(c.x, c.y, c.z, c.w)
 	
-	visual_instance.transform = xyz_rpy_to_transform3d(
-		visual.origin_xyz, visual.origin_rpy)
-	
 	match visual.type:
 		URDFVisual.Type.BOX:
 			var box_mesh = BoxMesh.new()
 			box_mesh.size = abs(visual.size)
 			box_mesh.material = material
+			visual_instance = MeshInstance3D.new()
+			visual_instance.transform = xyz_rpy_to_transform3d(
+				visual.origin_xyz, visual.origin_rpy)
 			visual_instance.mesh = box_mesh
 		URDFVisual.Type.CYLINDER:
 			var cylinder_mesh = CylinderMesh.new()
@@ -551,12 +550,18 @@ func _create_visual_instance(
 			cylinder_mesh.bottom_radius = abs(visual.radius)
 			cylinder_mesh.top_radius = abs(visual.radius)
 			cylinder_mesh.material = material
+			visual_instance = MeshInstance3D.new()
+			visual_instance.transform = xyz_rpy_to_transform3d(
+				visual.origin_xyz, visual.origin_rpy)
 			visual_instance.mesh = cylinder_mesh
 		URDFVisual.Type.SPHERE:
 			var sphere_mesh = SphereMesh.new()
 			sphere_mesh.radius = abs(visual.radius)
 			sphere_mesh.height = abs(visual.radius * 2)
 			sphere_mesh.material = material
+			visual_instance = MeshInstance3D.new()
+			visual_instance.transform = xyz_rpy_to_transform3d(
+				visual.origin_xyz, visual.origin_rpy)
 			visual_instance.mesh = sphere_mesh
 		URDFVisual.Type.MESH:
 			# Expected options["package_folder"] to be "res://path/to/urdf_root"
@@ -572,9 +577,12 @@ func _create_visual_instance(
 			if !FileAccess.file_exists(full_source_path):
 				push_error("Mesh not found at: ", full_source_path)
 
-			var imported_mesh = load(full_source_path)
-			if imported_mesh:
-				visual_instance.mesh = imported_mesh
+			var imported = load(full_source_path)
+			if imported is Mesh:
+				visual_instance = MeshInstance3D.new()
+				visual_instance.transform = xyz_rpy_to_transform3d(
+					visual.origin_xyz, visual.origin_rpy)
+				visual_instance.mesh = imported
 				var ext = full_source_path.get_extension().to_lower()
 				if ext == "stl":
 					visual_instance.scale = Vector3(0.001, 0.001, 0.001)
@@ -583,10 +591,22 @@ func _create_visual_instance(
 					visual_instance.scale = Vector3(1, 1, 1)
 				if c != Vector4.ZERO:
 					visual_instance.material_override = material
+			elif imported is PackedScene:
+				var _inst = imported.instantiate()
+				for child in _inst.get_children():
+					if child is MeshInstance3D:
+						_inst.remove_child(child)
+						child.owner = null
+						visual_instance = child
+						break
+				visual_instance.transform *= xyz_rpy_to_transform3d(
+					visual.origin_xyz, visual.origin_rpy)
 			else:
 				push_error("Failed to load mesh: ", full_source_path)
+				return null
 		_:
 			push_error("Unsupported visual type: ", visual.type)
+			return null
 
 	return visual_instance
 
