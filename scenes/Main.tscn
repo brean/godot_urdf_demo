@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://dw07evaoowol0"]
 
+[ext_resource type="Texture2D" uid="uid://dcwjsj4fc5p4r" path="res://addons/kenney_prototype_textures/texture_09.png" id="1_bjd11"]
 [ext_resource type="Script" uid="uid://mu3k1upew0vb" path="res://addons/godot_urdf/urdf_loader.gd" id="1_elqb8"]
 [ext_resource type="Script" uid="uid://qv3fxitufldn" path="res://addons/godot_urdf/node_link.gd" id="2_c01mt"]
 [ext_resource type="Script" uid="uid://0tpl8tcapk5g" path="res://addons/godot_urdf/godot_robot.gd" id="3_q8u5g"]
@@ -11,13 +12,26 @@
 [ext_resource type="Script" uid="uid://cbtkm3l23wc3r" path="res://addons/godot_urdf/robot_controller.gd" id="9_wp0k4"]
 [ext_resource type="PackedScene" uid="uid://ov6otpheq8va" path="res://urdf/turtlebot3_description/turtlebot3_burger.urdf" id="10_lhr70"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bjd11"]
+sky_horizon_color = Color(0.65452015, 0.63477075, 0.69973135, 1)
+ground_bottom_color = Color(0.2526354, 0.104637496, 0.26847982, 1)
+ground_horizon_color = Color(0.65452015, 0.63477075, 0.69973135, 1)
+
+[sub_resource type="Sky" id="Sky_qmy6f"]
+sky_material = SubResource("ProceduralSkyMaterial_bjd11")
+
+[sub_resource type="Environment" id="Environment_mwfav"]
+background_mode = 2
+sky = SubResource("Sky_qmy6f")
+tonemap_mode = 2
+
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_jlsqs"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jlsqs"]
-albedo_color = Color(0.09111712, 0.14334351, 1, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qmy6f"]
+albedo_texture = ExtResource("1_bjd11")
+uv1_scale = Vector3(150, 100, 100)
 
 [sub_resource type="BoxMesh" id="BoxMesh_q8u5g"]
-material = SubResource("StandardMaterial3D_jlsqs")
 size = Vector3(100, 0.2, 100)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lhr70"]
@@ -55,11 +69,15 @@ albedo_color = Color(0.3, 0.3, 0.3, 1)
 
 [node name="Node3D" type="Node3D" unique_id=350618490]
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1786769918]
+environment = SubResource("Environment_mwfav")
+
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=150020566]
 physics_material_override = SubResource("PhysicsMaterial_jlsqs")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=1808740805]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+material_override = SubResource("StandardMaterial3D_qmy6f")
 mesh = SubResource("BoxMesh_q8u5g")
 skeleton = NodePath("../..")
 
@@ -67,33 +85,35 @@ skeleton = NodePath("../..")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 shape = SubResource("BoxShape3D_lhr70")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=931553358]
-transform = Transform3D(0.74282944, -0.33474034, 0.5797874, -1.627424e-08, 0.86602545, 0.49999997, -0.6694808, -0.3714147, 0.6433092, 0.59052587, 0.8803828, 0.43700618)
-
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2121456697]
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 15, -10)
-light_energy = 2.5
+light_energy = 0.5
 shadow_enabled = true
 shadow_bias = 0.05
 shadow_normal_bias = 0.5
 
+[node name="Camera3D" type="Camera3D" parent="." unique_id=931553358]
+transform = Transform3D(1, 0, 0, 0, 0.61871004, 0.78561944, 0, -0.78561944, 0.61871004, -0.5294597, 1.671052, 1.0712502)
+fov = 40.0
+
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1218410478]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.021948, 1, 1.4508232)
 omni_range = 8.0
 
 [node name="SpotLight3D" type="SpotLight3D" parent="." unique_id=1918900011]
-transform = Transform3D(0.70710677, -0.35355338, 0.6123724, 0, 0.8660254, 0.5, -0.70710677, -0.35355338, 0.6123724, -10, 5, 0)
+transform = Transform3D(0.7071068, -0.35355338, 0.61237246, 0, 0.8660254, 0.50000006, -0.7071068, -0.35355338, 0.61237246, -1.7193222, 4.9999995, 2.767892)
 light_color = Color(0.9647059, 0.70980394, 0, 1)
 light_energy = 1.2
-spot_range = 12.0
+spot_range = 41.366753
+spot_angle = 35.014816
 
 [node name="LeftSideLight" type="OmniLight3D" parent="." unique_id=1640037130]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3154285, 0.39999998, 0.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7133082, 0.91419196, -0.36954057)
 light_color = Color(1, 0.5019608, 0, 1)
 omni_range = 6.0
 
 [node name="RightSideLight" type="OmniLight3D" parent="." unique_id=593973833]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06721395, 0.39999998, -0.6708292)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.03323579, 0.39999998, -1.0349755)
 light_color = Color(0, 0.5019608, 1, 1)
 omni_range = 6.0
 
@@ -230,8 +250,8 @@ mobile_type = 0
 front_left_wheel = "joint_wheel_left_joint"
 front_right_wheel = "joint_wheel_right_joint"
 
-[node name="turtlebot3_waffle" parent="." unique_id=1701756651 instance=ExtResource("9_q8u5g")]
+[node name="turtlebot3_waffle" parent="." unique_id=84644154 instance=ExtResource("9_q8u5g")]
 transform = Transform3D(0.6701156, 0, -0.7422567, 0, 1, 0, 0.7422567, 0, 0.6701156, -0.6419656, -9.685755e-08, -0.34358263)
 
-[node name="turtlebot3_burger" parent="." unique_id=975816745 instance=ExtResource("10_lhr70")]
+[node name="turtlebot3_burger" parent="." unique_id=633319798 instance=ExtResource("10_lhr70")]
 transform = Transform3D(0.9505591, 0, 0.31054372, 0, 1, 0, -0.31054372, 0, 0.9505591, -0.8249673, -7.450581e-09, -0.07030374)
