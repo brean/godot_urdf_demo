@@ -25,20 +25,30 @@ func _get_resource_type():
 func _get_preset_count():
 	return 0
 	
-func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
-	return []
+func _get_import_options(
+		_path: String, _preset_index: int) -> Array[Dictionary]:
+	return [
+		{
+			"name": "print_debug",
+			"default_value": false,
+			"hint_string": "For every imported STL, measuring how long the import took."
+		},
+	]
 	
-func _get_preset_name(preset):
+func _get_preset_name(_preset):
 	return "Unknown"
 	
-func _import(source_file: String, save_path: String, options: Dictionary, platform_variants: Array[String], gen_files: Array[String]):
+func _import(
+		source_file: String, save_path: String, options: Dictionary,
+		_platform_variants: Array[String], _gen_files: Array[String]):
 	var start_time = Time.get_ticks_msec()
 
-	# STL file format: https://web.archive.org/web/20210428125112/http://www.fabbers.com/tech/STL_Format
+	# STL file format: 
+	# https://web.archive.org/web/20210428125112/http://www.fabbers.com/tech/STL_Format
 	var file := FileAccess.open(source_file, FileAccess.READ)
 	if file == null:
 		return FileAccess.get_open_error()
-	
+
 	var surface_tool := SurfaceTool.new()
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
@@ -48,16 +58,17 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	else:
 		# print("load binary file ", source_file)
 		process_binary_stl(file, surface_tool)
-	
+
 	var final_mesh := surface_tool.commit()
 	var res = ResourceSaver.save(final_mesh, "%s.%s" % [save_path, _get_save_extension()])
-	
-	var now = Time.get_ticks_msec()
-	var elapsed = (now - start_time) / 1000.0
-	print("Done importing ", source_file, " took: ", elapsed)
-	
+
+	if options.get("print_debug", true):
+		var now = Time.get_ticks_msec()
+		var elapsed = (now - start_time) / 1000.0
+		print("Done importing ", source_file, " took: ", elapsed)
+
 	return res
-	
+
 func is_ascii_stl(file: FileAccess):
 	# binary STL has a 80 character header which cannot begin with "solid"
 	# ASCII STL begins with "solid"
@@ -121,7 +132,8 @@ func process_binary_stl(file: FileAccess, surface_tool: SurfaceTool):
 		# then there wil be 3 vertices
 		# STL lists its vertices in counterclockwise order
 		# while Godot uses clockwise order for front faces in primitive triangle mode
-		# so we will temporarily store them and when we leave a facet add the vertices to surface_tool
+		# so we will temporarily store them and when we leave a facet
+		# add the vertices to surface_tool
 		var vertices: Array[Vector3] = []
 		for j in range(3):
 			var x := get_float32(file)
@@ -148,10 +160,10 @@ func process_ascii_stl(file: FileAccess, surface_tool: SurfaceTool):
 	# we are going to ignore the name
 	file.get_line()
 	
-	var parsing_state := PARSE_STATE.SOLID
+	var parsing_state := ParseState.SOLID
 	
 	while !file.eof_reached():
-		if parsing_state == PARSE_STATE.SOLID:
+		if parsing_state == ParseState.SOLID:
 			var line := file.get_line().strip_edges(true, true)
 			
 			# last line should be "endsolid name"
@@ -168,19 +180,19 @@ func process_ascii_stl(file: FileAccess, surface_tool: SurfaceTool):
 				var normal_z = float(parts[4])
 				surface_tool.add_normal(Vector3(normal_x, normal_y, normal_z))
 				
-				parsing_state = PARSE_STATE.FACET
+				parsing_state = ParseState.FACET
 				
-		elif parsing_state == PARSE_STATE.FACET:
+		elif parsing_state == ParseState.FACET:
 			var line := file.get_line().strip_edges(true, true)
 			
 			if line == "endfacet":
-				parsing_state = PARSE_STATE.SOLID
+				parsing_state = ParseState.SOLID
 			elif line != "":
 				# line should be "outer loop"
 				# we can ignore this line and continue on to parsing the vertices
-				parsing_state = PARSE_STATE.OUTER_LOOP
+				parsing_state = ParseState.OUTER_LOOP
 		
-		elif parsing_state == PARSE_STATE.OUTER_LOOP:
+		elif parsing_state == ParseState.OUTER_LOOP:
 			var line := file.get_line().strip_edges(true, true)
 			
 			if line == "endloop":
@@ -188,7 +200,7 @@ func process_ascii_stl(file: FileAccess, surface_tool: SurfaceTool):
 					surface_tool.add_vertex(vec)
 					
 				vertices.clear()
-				parsing_state = PARSE_STATE.FACET
+				parsing_state = ParseState.FACET
 			elif line != "":
 				var parts = line.split(" ")
 				
@@ -203,4 +215,5 @@ func process_ascii_stl(file: FileAccess, surface_tool: SurfaceTool):
 				# to add the vertices to the mesh
 				vertices.insert(0, Vector3(x, y, z))
 
-enum PARSE_STATE {SOLID, FACET, OUTER_LOOP}
+
+enum ParseState {SOLID, FACET, OUTER_LOOP}

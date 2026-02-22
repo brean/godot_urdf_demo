@@ -12,3 +12,4 @@ dest_files=["res://.godot/imported/burger_base.stl-f1deb144734a634887c7e46238a63
 
 [params]
 
+print_debug=false

@@ -12,3 +12,4 @@ dest_files=["res://.godot/imported/waffle_pi_base_for_open_manipulator.stl-c85f2
 
 [params]
 
+print_debug=false

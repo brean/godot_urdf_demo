@@ -12,3 +12,4 @@ dest_files=["res://.godot/imported/waffle_base.stl-515691864960f2a68cc41aeebb33e
 
 [params]
 
+print_debug=false

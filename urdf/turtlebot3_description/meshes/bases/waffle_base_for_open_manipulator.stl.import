@@ -12,3 +12,4 @@ dest_files=["res://.godot/imported/waffle_base_for_open_manipulator.stl-b234d3a8
 
 [params]
 
+print_debug=false
