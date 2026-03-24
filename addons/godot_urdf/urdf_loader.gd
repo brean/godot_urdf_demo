@@ -13,6 +13,7 @@ extends Node3D
 @export_group("Transform")
 @export var _position: Vector3 = Vector3(0, 0, 0)
 @export var _rotation: Vector3 = Vector3(0, 0, 0)
+@export var _scale: float = 0.001
 
 func _load_urdf():
 	for child in get_children():
@@ -27,6 +28,7 @@ func _load_urdf():
 
 	var options = {
 		"package_folder": package_folder,
+		"scale": _scale,
 		"create_physics": true
 	}
 

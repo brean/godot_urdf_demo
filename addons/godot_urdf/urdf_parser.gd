@@ -523,7 +523,10 @@ func _create_visual_instance(
 		visual: URDFVisual,
 		options: Dictionary,
 		source_path: String) -> MeshInstance3D:
-
+	# Most models use millimeter, so we assume a scale of 0.001
+	var _scale = 0.001
+	if options.has("scale"):
+		_scale = options.get("scale")
 	var visual_instance
 
 	var material = StandardMaterial3D.new()
@@ -584,11 +587,9 @@ func _create_visual_instance(
 					visual.origin_xyz, visual.origin_rpy)
 				visual_instance.mesh = imported
 				var ext = full_source_path.get_extension().to_lower()
+				visual_instance.scale = Vector3(_scale, _scale, _scale)
 				if ext == "stl":
-					visual_instance.scale = Vector3(0.001, 0.001, 0.001)
 					visual_instance.rotate_x(-PI / 2)
-				else:
-					visual_instance.scale = Vector3(1, 1, 1)
 				if c != Vector4.ZERO:
 					visual_instance.material_override = material
 			elif imported is PackedScene:

@@ -21,6 +21,12 @@ func _get_import_options(_path: String, _preset_index: int) -> Array[Dictionary]
 			"property_hint": PROPERTY_HINT_GLOBAL_DIR,
 			"hint_string": ""
 		},
+		{
+			"name": "scale",
+			"default_value": 0.001,
+			"property_hint": PROPERTY_HINT_NONE,
+			"hint_string": ""
+		},
 	]
 	
 func _get_import_order() -> int:
