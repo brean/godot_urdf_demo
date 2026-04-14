@@ -1,4 +1,5 @@
-class_name URDFXMLParser extends XMLParser
+class_name URDFXMLParser
+extends XMLParser
 
 # Helper to recursively set owner for the final scene tree
 func recursive_set_owner(node: Node3D, target: Node3D):
@@ -27,7 +28,7 @@ func as_node3d(
 	var collision_bodies = {}
 
 	for link in robot.links:
-		var link_node3d = URDF_Link_Node3D.new()
+		var link_node3d = URDFLinkNode3D.new()
 
 		link_node3d.name = link.name + "_link"
 		robot_node.add_child(link_node3d)

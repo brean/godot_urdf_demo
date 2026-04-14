@@ -1,9 +1,10 @@
 @tool
-class_name GodotRobot extends Node3D
+class_name GodotRobot
+extends Node3D
 
 var _transform_cache = {}
 var joint_defs = {} # {"parent": String, "transform": Transform3D}
-var urdf:URDFRobot;
+var urdf:URDFRobot
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

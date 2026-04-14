@@ -1,6 +1,7 @@
-class_name URDFLink extends Object
+class_name URDFLink
+extends Resource
 
-var name: String
-var visuals: Array[URDFVisual] = []
-var colliders: Array[URDFCollider] = []
-var inertial: URDFInertial
+@export var name: String
+@export var visuals: Array = [] # URDFVisual
+@export var colliders: Array = [] # URDFCollider
+@export var inertial: Resource # URDFInertial

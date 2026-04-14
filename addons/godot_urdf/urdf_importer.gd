@@ -1,5 +1,6 @@
 @tool
-class_name GodotURDFImporter extends EditorImportPlugin
+class_name GodotURDFImporter
+extends EditorImportPlugin
 
 func _get_importer_name() -> String:
 	return "godot_urdf"
