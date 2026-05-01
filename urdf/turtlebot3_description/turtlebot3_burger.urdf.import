@@ -13,3 +13,4 @@ dest_files=["res://.godot/imported/turtlebot3_burger.urdf-590d486720316dbd64387a
 [params]
 
 package_folder="res://urdf"
+scale=0.001

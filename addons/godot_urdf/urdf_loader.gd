@@ -1,5 +1,7 @@
 @tool
 extends Node3D
+# Script you can attach to your node to load a robots elements as child
+# making it easier to modify/extend the robot
 
 @export_group("URDF File")
 @export_file("*.urdf", "*.xml") var urdf_file_path: String

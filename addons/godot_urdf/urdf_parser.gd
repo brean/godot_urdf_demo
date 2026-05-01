@@ -14,6 +14,7 @@ func as_node3d(
 	var start_time = Time.get_ticks_msec()
 	var robot: URDFRobot = parse(source_path)
 	if not robot:
+		push_error("No URDFRobot given")
 		return null
 
 	# Note that we have one root node that we will use to represent the URDF
@@ -28,6 +29,8 @@ func as_node3d(
 	var collision_bodies = {}
 
 	for link in robot.links:
+		# FIXME: we overwrite the URDFLinkNode3D with a Rigidbody
+		# Only create the URDFLinkNode if we actually use it
 		var link_node3d = URDFLinkNode3D.new()
 
 		link_node3d.name = link.name + "_link"

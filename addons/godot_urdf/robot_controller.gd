@@ -11,7 +11,7 @@ enum MobilityType {
 	TWO_WHEEL_DIFF_DRIVE,
 	FOUR_WHEEL_DIFF_DRIVE,
 	# ACKERMANN
-	# add hexapods and humanoids?!
+	# add hexapods, quadrupeds and humanoids?!
 }
 
 @export_group("Control")
@@ -21,6 +21,7 @@ enum MobilityType {
 			mobile_type = value
 			notify_property_list_changed()
 
+# TODO: have names as Generic6DOFJoint3D directly?
 var front_left_wheel: String = ""
 var front_right_wheel: String = ""
 var rear_left_wheel: String = ""

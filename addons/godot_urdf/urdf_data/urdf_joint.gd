@@ -1,3 +1,4 @@
+@tool
 class_name URDFJoint
 extends Resource
 
@@ -28,3 +29,5 @@ class URDFLimit extends Resource:
 class URDFDynamics extends Resource:
 	@export var damping: float
 	@export var friction: float
+
+enum JointType {FIXED, REVOLUTE, CONTINUOUS}

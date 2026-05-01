@@ -4,17 +4,8 @@ extends Node3D
 
 var _transform_cache = {}
 var joint_defs = {} # {"parent": String, "transform": Transform3D}
-var urdf:URDFRobot
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-
+@export var urdf: URDFRobot
 
 func add_joint(joint: URDFJoint, local_transform: Transform3D):
 	joint_defs[joint.child] = {
