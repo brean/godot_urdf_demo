@@ -2,8 +2,8 @@
 URDF for Godot 4.6 using the native XML-parser and updated stl importer.
 
 ## included and modified libraries:
- - Godot URDF by @askarkg12, BSD-3 license: https://github.com/askarkg12/godot_urdf/
- - STL importer by @grabthefish, MIT license: https://github.com/grabthefish/StlImporter
+ - Godot URDF by @askarkg12, [BSD-3 license](https://github.com/askarkg12/godot_urdf/blob/main/LICENSE): https://github.com/askarkg12/godot_urdf/
+ - godot-stl-io by @onze, [MIT license](https://github.com/onze/godot-stl-io/blob/development/addons/stl-io/license.txt): https://github.com/onze/godot-stl-io/blob/development/addons/stl-io/
 
 ## Usage
 Just clone this repo, open it as project in Godot and press play on the main Scene.
