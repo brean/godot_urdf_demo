@@ -29,15 +29,7 @@ func as_node3d(
 	var collision_bodies = {}
 
 	for link in robot.links:
-		# FIXME: we overwrite the URDFLinkNode3D with a Rigidbody
-		# Only create the URDFLinkNode if we actually use it
-		var link_node3d = URDFLinkNode3D.new()
-
-		link_node3d.name = link.name + "_link"
-		robot_node.add_child(link_node3d)
-		links[link.name] = link_node3d
-
-		var visual_parent: Node3D = link_node3d
+		var visual_parent: Node3D = null
 		if link.colliders.size() > 0:
 			var collision_body: CollisionObject3D
 			if options.get("create_physics", true):
@@ -47,14 +39,9 @@ func as_node3d(
 					# TODO: add inertial.inertia and origin as center-of-mass?
 			else:
 				collision_body = StaticBody3D.new()
-			visual_parent = collision_body
 			collision_bodies[link.name] = collision_body
 
 			collision_body.name = link.name + "_rigid_body"
-			collision_body.position = link_node3d.position
-			#link_node3d.add_child(collision_body)
-			#root_node.reparent(collision_body)
-			
 			robot_node.add_child(collision_body)
 			for collider in link.colliders:
 				var collision_shape = _create_collision_shape(
@@ -63,46 +50,44 @@ func as_node3d(
 					continue
 				collision_shape.name = link.name + "_collision"
 				collision_body.add_child(collision_shape)
+			visual_parent = collision_body
+		elif link.visuals.size() > 0:
+			# Only create an empty Node3D if we actually have visuals to attach 
+			# but no physics interactions
+			var link_node3d = Node3D.new()
+			link_node3d.name = link.name + "_link"
+			visual_parent = link_node3d
+			robot_node.add_child(link_node3d)
+		
+		# If we generated a scene representation, add visuals to it and cache it.
+		if visual_parent != null:
+			links[link.name] = visual_parent
 
-		for visual in link.visuals:
-			var visual_instance = _create_visual_instance(
-				robot, visual, options, source_path)
-			visual_instance.name = link.name + "_visual"
-			visual_parent.add_child(visual_instance)
+			for visual in link.visuals:
+				var visual_instance = _create_visual_instance(
+					robot, visual, options, source_path)
+				if visual_instance:
+					visual_instance.name = link.name + "_visual"
+					visual_parent.add_child(visual_instance)
 
 	for joint in robot.joints:
 		var child_node: Node3D = links.get(joint.child)
-		var parent_node: Node3D = links.get(joint.parent)
 
-		if !child_node:
-			push_error("Joint child link not found: ", joint.child)
-			continue
-		if !parent_node:
-			push_error("Joint parent link not found: ", joint.parent)
-			continue
-
-		child_node.name = joint.name
-
-		# Reparent
-		child_node.get_parent().remove_child(child_node)
-		parent_node.add_child(child_node)
-
-		# set center position and store in cache so we can
-		# calculate the global collider later on.
+		# Set center position and store in cache so we can
+		# calculate the global positions later.
 		var local_transform: Transform3D = xyz_rpy_to_transform3d(
 				joint.origin_xyz, joint.origin_rpy)
-		child_node.transform = local_transform
 
+		if child_node:
+			child_node.name = joint.name
 		robot_node.add_joint(joint, local_transform)
-
 		create_godot_joint(
 			joint, collision_bodies, robot_node)
 
-	# position collider
-	for col_name in collision_bodies.keys():
-		var global_rel_transform = robot_node.get_rel_transform(col_name)
-		var collision = collision_bodies[col_name]
-		collision.transform = global_rel_transform
+	for link_name in links.keys():
+		var global_rel_transform = robot_node.get_rel_transform(link_name)
+		var link_node = links[link_name]
+		link_node.transform = global_rel_transform
 
 
 	var now = Time.get_ticks_msec()

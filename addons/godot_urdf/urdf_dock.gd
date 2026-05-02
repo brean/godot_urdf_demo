@@ -35,7 +35,6 @@ func _init():
 	tree.item_selected.connect(_on_tree_item_selected)
 	main_content.add_child(tree)
 	
-	
 func _show_message(text: String):
 	# instead of the main content show the message
 	main_content.hide()
