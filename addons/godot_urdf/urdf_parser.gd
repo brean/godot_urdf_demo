@@ -64,11 +64,9 @@ func as_node3d(
 			links[link.name] = visual_parent
 
 			for visual in link.visuals:
-				var visual_instance = _create_visual_instance(
-					robot, visual, options, source_path)
-				if visual_instance:
-					visual_instance.name = link.name + "_visual"
-					visual_parent.add_child(visual_instance)
+				_create_visual_instance(
+					robot, visual_parent, visual, 
+					link.name + "_visual", options, source_path)
 
 	for joint in robot.joints:
 		var child_node: Node3D = links.get(joint.child)
@@ -428,6 +426,57 @@ func xyz_rpy_to_transform3d(xyz: Vector3, rpy: Vector3) -> Transform3D:
 	var basis = Basis.from_euler(rpy, EULER_ORDER_XYZ)
 	return Transform3D(basis, xyz)
 
+func _clean_path(
+		package_path: String,
+		options: Dictionary,
+		source_path: String) -> String:
+	var clean_path = package_path.replace("package://", "")
+	if options.has("package_folder"):
+		return options["package_folder"].path_join(clean_path)
+	# Fallback: try to find it relative to the URDF file
+	return source_path.get_base_dir().path_join(clean_path)
+
+func _mesh_from_filename(
+		path: String,
+		origin_xyz: Vector3,
+		origin_rpy: Vector3,
+		options: Dictionary,
+		source_path: String,
+		material: BaseMaterial3D) -> Node:
+	var full_source_path =_clean_path(path, options, source_path)
+	if !FileAccess.file_exists(full_source_path):
+		push_error("Mesh not found at: ", full_source_path)
+	var _scale = 0.001
+	if options.has("scale"):
+		_scale = options.get("scale")
+	var imported = load(full_source_path)
+	var node = null
+	if imported is Mesh:
+		node = MeshInstance3D.new()
+		node.transform = xyz_rpy_to_transform3d(
+			origin_xyz, origin_rpy)
+		node.mesh = imported
+		var ext = full_source_path.get_extension().to_lower()
+		node.scale = Vector3(_scale, _scale, _scale)
+		if ext == "stl":
+			node.rotate_x(-PI / 2)
+		if material != null:
+			node.material_override = material
+	elif imported is PackedScene:
+		var _inst = imported.instantiate()
+		node = _inst
+		for child in _inst.get_children():
+			if child is MeshInstance3D:
+				child.transform *= xyz_rpy_to_transform3d(
+					origin_xyz, origin_rpy)
+				if material != null:
+					child.material_overwrite = material
+	else:
+		push_error("Failed to load node: ", full_source_path)
+		return null
+	return node
+	
+
 func parse_geometry(
 		parser: XMLParser,
 		target_object: Object,
@@ -509,17 +558,15 @@ func parse_material_color(parser: XMLParser) -> Vector4:
 
 func _create_visual_instance(
 		robot: URDFRobot,
+		visual_parent: Node3D,
 		visual: URDFVisual,
+		name: String,
 		options: Dictionary,
-		source_path: String) -> MeshInstance3D:
+		source_path: String) -> void:
 	# Most models use millimeter, so we assume a scale of 0.001
-	var _scale = 0.001
-	if options.has("scale"):
-		_scale = options.get("scale")
 	var visual_instance
 
 	var material = StandardMaterial3D.new()
-	
 	var c = visual.material_color
 	if c != Vector4.ZERO:
 		material.albedo_color = Color(c.x, c.y, c.z, c.w)
@@ -536,6 +583,8 @@ func _create_visual_instance(
 			visual_instance.transform = xyz_rpy_to_transform3d(
 				visual.origin_xyz, visual.origin_rpy)
 			visual_instance.mesh = box_mesh
+			visual_instance.name = name
+			visual_parent.add_child(visual_instance)
 		URDFVisual.Type.CYLINDER:
 			var cylinder_mesh = CylinderMesh.new()
 			cylinder_mesh.height = abs(visual.length)
@@ -546,6 +595,8 @@ func _create_visual_instance(
 			visual_instance.transform = xyz_rpy_to_transform3d(
 				visual.origin_xyz, visual.origin_rpy)
 			visual_instance.mesh = cylinder_mesh
+			visual_instance.name = name
+			visual_parent.add_child(visual_instance)
 		URDFVisual.Type.SPHERE:
 			var sphere_mesh = SphereMesh.new()
 			sphere_mesh.radius = abs(visual.radius)
@@ -555,50 +606,17 @@ func _create_visual_instance(
 			visual_instance.transform = xyz_rpy_to_transform3d(
 				visual.origin_xyz, visual.origin_rpy)
 			visual_instance.mesh = sphere_mesh
+			visual_instance.name = name
+			visual_parent.add_child(visual_instance)
 		URDFVisual.Type.MESH:
 			# Expected options["package_folder"] to be "res://path/to/urdf_root"
-			var clean_path = visual.mesh_path.replace("package://", "")
-			var full_source_path = ""
-			if options.has("package_folder"):
-				full_source_path = options["package_folder"].path_join(clean_path)
-			else:
-				# Fallback: try to find it relative to the URDF file
-				full_source_path = source_path.get_base_dir().path_join(clean_path)
-
-			# Check if file exists in Godot project
-			if !FileAccess.file_exists(full_source_path):
-				push_error("Mesh not found at: ", full_source_path)
-
-			var imported = load(full_source_path)
-			if imported is Mesh:
-				visual_instance = MeshInstance3D.new()
-				visual_instance.transform = xyz_rpy_to_transform3d(
-					visual.origin_xyz, visual.origin_rpy)
-				visual_instance.mesh = imported
-				var ext = full_source_path.get_extension().to_lower()
-				visual_instance.scale = Vector3(_scale, _scale, _scale)
-				if ext == "stl":
-					visual_instance.rotate_x(-PI / 2)
-				if c != Vector4.ZERO:
-					visual_instance.material_override = material
-			elif imported is PackedScene:
-				var _inst = imported.instantiate()
-				for child in _inst.get_children():
-					if child is MeshInstance3D:
-						_inst.remove_child(child)
-						child.owner = null
-						visual_instance = child
-						break
-				visual_instance.transform *= xyz_rpy_to_transform3d(
-					visual.origin_xyz, visual.origin_rpy)
-			else:
-				push_error("Failed to load mesh: ", full_source_path)
-				return null
+			var mesh = _mesh_from_filename(
+				visual.mesh_path, visual.origin_xyz, visual.origin_rpy,
+				options, source_path, null if c == Vector4.ZERO else material)
+			mesh.name = name
+			visual_parent.add_child(mesh)
 		_:
 			push_error("Unsupported visual type: ", visual.type)
-			return null
-
-	return visual_instance
 
 func _create_collision_shape(
 		collider: URDFCollider,
@@ -620,29 +638,27 @@ func _create_collision_shape(
 			sphere_shape.radius = abs(collider.radius)
 			collision_shape.shape = sphere_shape
 		URDFCollider.Type.MESH:
-			# var mesh_helper = MeshInstance3D.new()
-
-			# var clean_path = collider.mesh_path.replace("package://", "")
-			# var full_source_path = ""
-			# if options.has("package_folder"):
-			# 	full_source_path = options["package_folder"].path_join(clean_path)
-			# else:
-			# 	# Fallback: try to find it relative to the URDF file
-			# 	full_source_path = source_path.get_base_dir().path_join(clean_path)
-
-			# # Check if file exists in Godot project
-			# if !FileAccess.file_exists(full_source_path):
-			# 	push_error("Mesh not found at: ", full_source_path)
-
-			# var imported_mesh = load(full_source_path)
-
-			# mesh_helper.mesh = imported_mesh
-			# mesh_helper.create_multiple_convex_collisions()
-			
-			# var child = mesh_helper.get_child(1)
-			# mesh_helper.remove_child(child)
-			push_error("FIXME: IGNORING MESH!")
-			return null
+			var node = _mesh_from_filename(
+				collider.mesh_path, collider.origin_xyz, collider.origin_rpy,
+				options, source_path, null
+			)
+			if node is MeshInstance3D:
+				var mesh: Mesh = node.mesh
+				var shape: Shape3D = mesh.create_convex_shape(true, true)
+				if shape == null:
+					return null
+				collision_shape.transform = node.transform
+				collision_shape.shape = shape
+				return collision_shape
+			for child in node.get_children():
+				if child is MeshInstance3D:
+					var mesh: Mesh = node.mesh
+					var shape: Shape3D = mesh.create_convex_shape(true, true)
+					if shape == null:
+						return null
+					collision_shape.shape = shape
+					# FIXME: we assume there is only one mesh
+					return collision_shape
 		_:
 			push_error("Unsupported collider type: ", collider.type)
 			return null

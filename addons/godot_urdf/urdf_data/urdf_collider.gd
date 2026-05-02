@@ -12,7 +12,6 @@ extends Resource
 @export var radius: float
 @export var length: float
 
-# FIXME: mesh is not implemented yet!
 @export var mesh_path: String
 
 enum Type {BOX, MESH, CYLINDER, SPHERE}
