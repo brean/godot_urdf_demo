@@ -1,0 +1,77 @@
+class_name URDF6DOFJoint3D
+extends Generic6DOFJoint3D
+
+@export var joint: URDFJoint
+
+func update_joint(godot_robot: GodotRobot, joint: URDFJoint) -> void:
+	godot_robot.add_child(self)
+	self.owner = godot_robot.owner
+
+	self.joint = joint
+	self.name = "joint_" + joint.name
+	self.exclude_nodes_from_collision = false
+
+	# lock all movement and rotation (fixed = default)
+	for axis_func in ["set_param_x", "set_param_y", "set_param_z"]:
+		self.call(
+			axis_func, Generic6DOFJoint3D.PARAM_LINEAR_LOWER_LIMIT, 0.0)
+		self.call(
+			axis_func, Generic6DOFJoint3D.PARAM_LINEAR_UPPER_LIMIT, 0.0)
+	for axis_func in ["set_param_x", "set_param_y"]:
+		self.call(
+			axis_func, Generic6DOFJoint3D.PARAM_ANGULAR_LOWER_LIMIT, 0.0)
+		self.call(
+			axis_func, Generic6DOFJoint3D.PARAM_ANGULAR_UPPER_LIMIT, 0.0)
+
+	if joint.type == "revolute" and joint.limit:
+		# Limited hinge
+		self.set_param_z(
+			Generic6DOFJoint3D.PARAM_ANGULAR_LOWER_LIMIT, joint.limit.lower)
+		self.set_param_z(
+			Generic6DOFJoint3D.PARAM_ANGULAR_UPPER_LIMIT, joint.limit.upper)
+
+	elif joint.type == "continuous":
+		# Unlimited hinge: Lower > Upper disables the limit
+		self.set_param_z(
+			Generic6DOFJoint3D.PARAM_ANGULAR_LOWER_LIMIT, 1.0)
+		self.set_param_z(
+			Generic6DOFJoint3D.PARAM_ANGULAR_UPPER_LIMIT, 0.0)
+
+	self.set_flag_z(
+		Generic6DOFJoint3D.FLAG_ENABLE_MOTOR, true)
+	self.set_param_z(
+		Generic6DOFJoint3D.PARAM_ANGULAR_MOTOR_TARGET_VELOCITY, 0.0)
+
+	if joint.dynamics:
+		if joint.dynamics.friction > 0:
+			self.set_param_z(
+				Generic6DOFJoint3D.PARAM_ANGULAR_MOTOR_FORCE_LIMIT,
+				joint.dynamics.friction)
+		if joint.dynamics.damping > 0:
+			# Damping is not supported by Jolt Physics, use Springinstead
+			# if joint.dynamics.damping > 0:
+			# 	godot_joint.set_param_z(
+			# 		Generic6DOFJoint3D.PARAM_ANGULAR_DAMPING,
+			# 		joint.dynamics.damping)
+			self.set_flag_z(
+				Generic6DOFJoint3D.FLAG_ENABLE_ANGULAR_SPRING, true)
+			self.set_param_z(
+				Generic6DOFJoint3D.PARAM_ANGULAR_SPRING_DAMPING,
+				joint.dynamics.damping)
+
+	if joint.limit and joint.limit.effort > 0:
+		# If friction is already using the motor, we ensure the effort is
+		# at least as high as friction
+		var max_force = max(
+			joint.limit.effort,
+			joint.dynamics.friction if joint.dynamics else 0.0)
+		self.set_param_z(
+			Generic6DOFJoint3D.PARAM_ANGULAR_MOTOR_FORCE_LIMIT, max_force)
+
+	# apply transform to position and rotate hinge
+	var child_transform = godot_robot.get_rel_transform(joint.child)
+	self.position = child_transform.origin
+	var base_basis = child_transform.basis
+	var urdf_axis = joint.axis.normalized()
+	var axis_rotation = Quaternion(Vector3.FORWARD, urdf_axis)
+	self.transform.basis = base_basis * Basis(axis_rotation)

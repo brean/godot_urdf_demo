@@ -34,19 +34,14 @@ func _load_urdf():
 		"create_physics": true
 	}
 
-	var robot_node = parser.as_node3d(urdf_file_path, options)
+	var _root = get_tree().edited_scene_root
+
+	var robot_node = parser.as_node3d(
+		urdf_file_path, options, self, _root)
 
 	if robot_node:
-		add_child(robot_node)
 		robot_node.set_position(_position)
 		robot_node.set_rotation(_rotation / 180 * PI)
-		# get_tree().edited_scene_root.add_child(robot_node)
-		var scene_root = get_tree().edited_scene_root
-		
-		if scene_root:
-			parser.recursive_set_owner(robot_node, scene_root)
-		else:
-			robot_node.owner = self
 
 		print("Robot loaded successfully!")
 	else:

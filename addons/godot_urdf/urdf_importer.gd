@@ -61,9 +61,9 @@ func _import(
 	if source_dir_result != OK:
 		push_error("Failed to create import directory: ", basename)
 		return source_dir_result
-	var robot_node = urdf_parser.as_node3d(source_file, options)
+	var robot_node = urdf_parser.as_node3d(
+		source_file, options, null, null)
 	# robot_node.owner = scene
-	urdf_parser.recursive_set_owner(robot_node, robot_node)
 	scene.pack(robot_node)
 	var saved_path = save_path + "." + _get_save_extension()
 	# Save the packed scene to the target path

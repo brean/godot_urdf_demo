@@ -1,18 +1,19 @@
 class_name URDFXMLParser
 extends XMLParser
 
-# Helper to recursively set owner for the final scene tree
-func recursive_set_owner(node: Node3D, target: Node3D):
-	if node != target and target != null:
-		node.owner = target
-	for child in node.get_children():
-		recursive_set_owner(child, target)
+var resource_cache: Dictionary[String, Resource] = {}
 
 func as_node3d(
 		source_path: String,
-		options: Dictionary) -> GodotRobot:
+		options: Dictionary,
+		parent_node: Node3D,
+		owner_node: Node3D) -> GodotRobot:
 	var start_time = Time.get_ticks_msec()
 	var robot: URDFRobot = parse(source_path)
+	if source_path.begins_with("uid://"):
+		var id = ResourceUID.text_to_id(source_path)
+		source_path = ResourceUID.get_id_path(id)
+	print("parsing " + source_path)
 	if not robot:
 		push_error("No URDFRobot given")
 		return null
@@ -22,159 +23,13 @@ func as_node3d(
 	# are connected to this as well, NOT to their parents in the URDF
 	# structure!
 	var robot_node = GodotRobot.new()
-	robot_node.urdf = robot
-	robot_node.name = robot.name
-	
-	var links = {} # {link_name: Node3D}
-	var collision_bodies = {}
-
-	for link in robot.links:
-		var visual_parent: Node3D = null
-		if link.colliders.size() > 0:
-			var collision_body: CollisionObject3D
-			if options.get("create_physics", true):
-				collision_body = RigidBody3D.new()
-				if link.inertial:
-					collision_body.mass = link.inertial.mass
-					# TODO: add inertial.inertia and origin as center-of-mass?
-			else:
-				collision_body = StaticBody3D.new()
-			collision_bodies[link.name] = collision_body
-
-			collision_body.name = link.name + "_rigid_body"
-			robot_node.add_child(collision_body)
-			for collider in link.colliders:
-				var collision_shape = _create_collision_shape(
-					collider, options, source_path)
-				if not collision_shape:
-					continue
-				collision_shape.name = link.name + "_collision"
-				collision_body.add_child(collision_shape)
-			visual_parent = collision_body
-		elif link.visuals.size() > 0:
-			# Only create an empty Node3D if we actually have visuals to attach 
-			# but no physics interactions
-			var link_node3d = Node3D.new()
-			link_node3d.name = link.name + "_link"
-			visual_parent = link_node3d
-			robot_node.add_child(link_node3d)
-		
-		# If we generated a scene representation, add visuals to it and cache it.
-		if visual_parent != null:
-			links[link.name] = visual_parent
-
-			for visual in link.visuals:
-				_create_visual_instance(
-					robot, visual_parent, visual, 
-					link.name + "_visual", options, source_path)
-
-	for joint in robot.joints:
-		var child_node: Node3D = links.get(joint.child)
-
-		# Set center position and store in cache so we can
-		# calculate the global positions later.
-		var local_transform: Transform3D = xyz_rpy_to_transform3d(
-				joint.origin_xyz, joint.origin_rpy)
-
-		if child_node:
-			child_node.name = joint.name
-		robot_node.add_joint(joint, local_transform)
-		create_godot_joint(
-			joint, collision_bodies, robot_node)
-
-	for link_name in links.keys():
-		var global_rel_transform = robot_node.get_rel_transform(link_name)
-		var link_node = links[link_name]
-		link_node.transform = global_rel_transform
-
+	robot_node.init_data(
+		robot, parent_node, owner_node, options, source_path)
 
 	var now = Time.get_ticks_msec()
 	var elapsed = (now - start_time) / 1000.0
 	print("Done generating robot, took:", elapsed)
 	return robot_node
-
-func create_godot_joint(
-		joint: URDFJoint, collision_bodies: Dictionary,
-		robot_node: GodotRobot):
-	var collision_node_a = collision_bodies.get(joint.parent)
-	var collision_node_b = collision_bodies.get(joint.child)
-	if !collision_node_a or !collision_node_b:
-		return
-
-	var godot_joint: Generic6DOFJoint3D = Generic6DOFJoint3D.new()
-	godot_joint.name = "joint_" + joint.name
-	robot_node.add_child(godot_joint)
-
-	godot_joint.exclude_nodes_from_collision = false
-
-	# apply transform to position and rotate hinge
-	var child_transform = robot_node.get_rel_transform(joint.child)
-	godot_joint.position = child_transform.origin
-	var base_basis = child_transform.basis
-	var urdf_axis = joint.axis.normalized()
-	var axis_rotation = Quaternion(Vector3.FORWARD, urdf_axis)
-	godot_joint.transform.basis = base_basis * Basis(axis_rotation)
-
-	# lock all movement and rotation (fixed = default)
-	for axis_func in ["set_param_x", "set_param_y", "set_param_z"]:
-		godot_joint.call(
-			axis_func, Generic6DOFJoint3D.PARAM_LINEAR_LOWER_LIMIT, 0.0)
-		godot_joint.call(
-			axis_func, Generic6DOFJoint3D.PARAM_LINEAR_UPPER_LIMIT, 0.0)
-	for axis_func in ["set_param_x", "set_param_y"]:
-		godot_joint.call(
-			axis_func, Generic6DOFJoint3D.PARAM_ANGULAR_LOWER_LIMIT, 0.0)
-		godot_joint.call(
-			axis_func, Generic6DOFJoint3D.PARAM_ANGULAR_UPPER_LIMIT, 0.0)
-
-	if joint.type == "revolute" and joint.limit:
-		# Limited hinge
-		godot_joint.set_param_z(
-			Generic6DOFJoint3D.PARAM_ANGULAR_LOWER_LIMIT, joint.limit.lower)
-		godot_joint.set_param_z(
-			Generic6DOFJoint3D.PARAM_ANGULAR_UPPER_LIMIT, joint.limit.upper)
-
-	elif joint.type == "continuous":
-		# Unlimited hinge: Lower > Upper disables the limit
-		godot_joint.set_param_z(
-			Generic6DOFJoint3D.PARAM_ANGULAR_LOWER_LIMIT, 1.0)
-		godot_joint.set_param_z(
-			Generic6DOFJoint3D.PARAM_ANGULAR_UPPER_LIMIT, 0.0)
-
-	godot_joint.set_flag_z(
-		Generic6DOFJoint3D.FLAG_ENABLE_MOTOR, true)
-	godot_joint.set_param_z(
-		Generic6DOFJoint3D.PARAM_ANGULAR_MOTOR_TARGET_VELOCITY, 0.0)
-
-	if joint.dynamics:
-		if joint.dynamics.friction > 0:
-			godot_joint.set_param_z(
-				Generic6DOFJoint3D.PARAM_ANGULAR_MOTOR_FORCE_LIMIT,
-				joint.dynamics.friction)
-		if joint.dynamics.damping > 0:
-			# Damping is not supported by Jolt Physics, use Springinstead
-			# if joint.dynamics.damping > 0:
-			# 	godot_joint.set_param_z(
-			# 		Generic6DOFJoint3D.PARAM_ANGULAR_DAMPING,
-			# 		joint.dynamics.damping)
-			godot_joint.set_flag_z(
-				Generic6DOFJoint3D.FLAG_ENABLE_ANGULAR_SPRING, true)
-			godot_joint.set_param_z(
-				Generic6DOFJoint3D.PARAM_ANGULAR_SPRING_DAMPING,
-				joint.dynamics.damping)
-
-	if joint.limit and joint.limit.effort > 0:
-		# If friction is already using the motor, we ensure the effort is
-		# at least as high as friction
-		var max_force = max(
-			joint.limit.effort,
-			joint.dynamics.friction if joint.dynamics else 0.0)
-		godot_joint.set_param_z(
-			Generic6DOFJoint3D.PARAM_ANGULAR_MOTOR_FORCE_LIMIT, max_force)
-
-	godot_joint.node_a = godot_joint.get_path_to(collision_node_a)
-	godot_joint.node_b = godot_joint.get_path_to(collision_node_b)
-	return godot_joint
 
 func parse(source_path: String) -> URDFRobot:
 	var parser = XMLParser.new()
@@ -193,9 +48,8 @@ func parse(source_path: String) -> URDFRobot:
 				robot.name = parser.get_named_attribute_value_safe("name")
 				print("robot name: ", robot.name)
 				parse_robot_children(parser, robot)
-
 	return robot
-	
+
 func parse_robot_children(parser: XMLParser, robot: URDFRobot) -> void:
 	while parser.read() == OK:
 		var node_type = parser.get_node_type()
@@ -206,12 +60,8 @@ func parse_robot_children(parser: XMLParser, robot: URDFRobot) -> void:
 		if node_type == XMLParser.NODE_ELEMENT:
 			match node_name:
 				"link":
-					#var link_name := parser.get_named_attribute_value_safe("name")
-					#print("parsing link: ",  link_name)
 					robot.links.append(get_urdf_link(parser))
 				"joint":
-					#var joint_name := parser.get_named_attribute_value_safe("name")
-					#print("parsing joint: ", joint_name)
 					robot.joints.append(get_urdf_joint(parser))
 				"material":
 					var material_name = parser.get_named_attribute_value_safe("name")
@@ -326,7 +176,7 @@ func parse_inertia(parser: XMLParser) -> Dictionary:
 
 func get_link_collider(parser: XMLParser) -> URDFCollider:
 	var collider = URDFCollider.new()
-	
+
 	if parser.is_empty():
 		return collider
 
@@ -352,10 +202,10 @@ func get_link_collider(parser: XMLParser) -> URDFCollider:
 
 func get_link_visual(parser: XMLParser) -> URDFVisual:
 	var visual = URDFVisual.new()
-	
+
 	if parser.is_empty():
 		return visual
-	
+
 	while parser.read() == OK:
 		var node_type = parser.get_node_type()
 		if node_type == XMLParser.NODE_TEXT:
@@ -381,29 +231,12 @@ func get_link_visual(parser: XMLParser) -> URDFVisual:
 	return visual
 
 func parse_xyz(parser: XMLParser) -> Vector3:
-	var xyz = parser.get_named_attribute_value_safe("xyz")
-	var xyz_split = xyz.split(" ", false)
-	if xyz.is_empty() or xyz_split.size() < 3:
-		push_error("not enough values for XYZ!")
-		return Vector3(0, 0, 0)
-	return Vector3(
-		float(xyz_split[0]),
-		float(xyz_split[2]),
-		-float(xyz_split[1]))
+	return URDFUtils.parse_xyz(
+		parser.get_named_attribute_value_safe("xyz"))
 
 func parse_rpy(parser: XMLParser) -> Vector3:
-	var rpy = parser.get_named_attribute_value_safe("rpy")
-	if rpy.is_empty():
-		return Vector3.ZERO
-	var rpy_split = rpy.split(" ", false)
-	if rpy_split.size() < 3:
-		# throw error?
-		push_error("not enough values for RPY: " + rpy)
-		return Vector3.ZERO
-	return Vector3(
-			float(rpy_split[0]),
-			float(rpy_split[2]),
-			-float(rpy_split[1]))
+	return URDFUtils.parse_rpy(
+		parser.get_named_attribute_value_safe("rpy"))
 
 func _get_named_float(parser: XMLParser, name: String) -> float:
 	var value = parser.get_named_attribute_value_safe(name)
@@ -421,69 +254,13 @@ func parse_joint_dynamics(parser: XMLParser, joint: URDFJoint) -> void:
 	joint.dynamics.damping = _get_named_float(parser, "damping")
 	joint.dynamics.friction = _get_named_float(parser, "friction")
 
-func xyz_rpy_to_transform3d(xyz: Vector3, rpy: Vector3) -> Transform3D:
-	# Convert XYZ RPY vector to 3D transform
-	var basis = Basis.from_euler(rpy, EULER_ORDER_XYZ)
-	return Transform3D(basis, xyz)
-
-func _clean_path(
-		package_path: String,
-		options: Dictionary,
-		source_path: String) -> String:
-	var clean_path = package_path.replace("package://", "")
-	if options.has("package_folder"):
-		return options["package_folder"].path_join(clean_path)
-	# Fallback: try to find it relative to the URDF file
-	return source_path.get_base_dir().path_join(clean_path)
-
-func _mesh_from_filename(
-		path: String,
-		origin_xyz: Vector3,
-		origin_rpy: Vector3,
-		options: Dictionary,
-		source_path: String,
-		material: BaseMaterial3D) -> Node:
-	var full_source_path =_clean_path(path, options, source_path)
-	if !FileAccess.file_exists(full_source_path):
-		push_error("Mesh not found at: ", full_source_path)
-	var _scale = 0.001
-	if options.has("scale"):
-		_scale = options.get("scale")
-	var imported = load(full_source_path)
-	var node = null
-	if imported is Mesh:
-		node = MeshInstance3D.new()
-		node.transform = xyz_rpy_to_transform3d(
-			origin_xyz, origin_rpy)
-		node.mesh = imported
-		var ext = full_source_path.get_extension().to_lower()
-		node.scale = Vector3(_scale, _scale, _scale)
-		if ext == "stl":
-			node.rotate_x(-PI / 2)
-		if material != null:
-			node.material_override = material
-	elif imported is PackedScene:
-		var _inst = imported.instantiate()
-		node = _inst
-		for child in _inst.get_children():
-			if child is MeshInstance3D:
-				child.transform *= xyz_rpy_to_transform3d(
-					origin_xyz, origin_rpy)
-				if material != null:
-					child.material_overwrite = material
-	else:
-		push_error("Failed to load node: ", full_source_path)
-		return null
-	return node
-	
-
 func parse_geometry(
 		parser: XMLParser,
 		target_object: Object,
 		is_visual: bool) -> void:
 	if parser.is_empty():
 		return
-	
+
 	while parser.read() == OK:
 		var node_type = parser.get_node_type()
 		if node_type == XMLParser.NODE_TEXT: continue
@@ -534,7 +311,6 @@ func parse_material_color(parser: XMLParser) -> Vector4:
 	while parser.read() == OK:
 		var node_type = parser.get_node_type()
 		if node_type == XMLParser.NODE_TEXT: continue
-
 		if node_type == XMLParser.NODE_ELEMENT and \
 				parser.get_node_name() == "color":
 			var rgba_str = parser.get_named_attribute_value_safe("rgba")
@@ -545,125 +321,10 @@ func parse_material_color(parser: XMLParser) -> Vector4:
 						float(color_split[0]),
 						float(color_split[1]),
 						float(color_split[2]),
-						float(color_split[3])
-					)
+						float(color_split[3]))
 				else:
 					push_warning("Invalid color: ", rgba_str)
-					
 		elif node_type == XMLParser.NODE_ELEMENT_END:
 			if parser.get_node_name() == "material":
 				return material_color
-
 	return material_color
-
-func _create_visual_instance(
-		robot: URDFRobot,
-		visual_parent: Node3D,
-		visual: URDFVisual,
-		name: String,
-		options: Dictionary,
-		source_path: String) -> void:
-	# Most models use millimeter, so we assume a scale of 0.001
-	var visual_instance
-
-	var material = StandardMaterial3D.new()
-	var c = visual.material_color
-	if c != Vector4.ZERO:
-		material.albedo_color = Color(c.x, c.y, c.z, c.w)
-	elif visual.material_name in robot.materials:
-		c = robot.materials[visual.material_name]
-		material.albedo_color = Color(c.x, c.y, c.z, c.w)
-	
-	match visual.type:
-		URDFVisual.Type.BOX:
-			var box_mesh = BoxMesh.new()
-			box_mesh.size = abs(visual.size)
-			box_mesh.material = material
-			visual_instance = MeshInstance3D.new()
-			visual_instance.transform = xyz_rpy_to_transform3d(
-				visual.origin_xyz, visual.origin_rpy)
-			visual_instance.mesh = box_mesh
-			visual_instance.name = name
-			visual_parent.add_child(visual_instance)
-		URDFVisual.Type.CYLINDER:
-			var cylinder_mesh = CylinderMesh.new()
-			cylinder_mesh.height = abs(visual.length)
-			cylinder_mesh.bottom_radius = abs(visual.radius)
-			cylinder_mesh.top_radius = abs(visual.radius)
-			cylinder_mesh.material = material
-			visual_instance = MeshInstance3D.new()
-			visual_instance.transform = xyz_rpy_to_transform3d(
-				visual.origin_xyz, visual.origin_rpy)
-			visual_instance.mesh = cylinder_mesh
-			visual_instance.name = name
-			visual_parent.add_child(visual_instance)
-		URDFVisual.Type.SPHERE:
-			var sphere_mesh = SphereMesh.new()
-			sphere_mesh.radius = abs(visual.radius)
-			sphere_mesh.height = abs(visual.radius * 2)
-			sphere_mesh.material = material
-			visual_instance = MeshInstance3D.new()
-			visual_instance.transform = xyz_rpy_to_transform3d(
-				visual.origin_xyz, visual.origin_rpy)
-			visual_instance.mesh = sphere_mesh
-			visual_instance.name = name
-			visual_parent.add_child(visual_instance)
-		URDFVisual.Type.MESH:
-			# Expected options["package_folder"] to be "res://path/to/urdf_root"
-			var mesh = _mesh_from_filename(
-				visual.mesh_path, visual.origin_xyz, visual.origin_rpy,
-				options, source_path, null if c == Vector4.ZERO else material)
-			mesh.name = name
-			visual_parent.add_child(mesh)
-		_:
-			push_error("Unsupported visual type: ", visual.type)
-
-func _create_collision_shape(
-		collider: URDFCollider,
-		options: Dictionary,
-		source_path: String) -> CollisionShape3D:
-	var collision_shape = CollisionShape3D.new()
-	match collider.type:
-		URDFCollider.Type.BOX:
-			var box_shape = BoxShape3D.new()
-			box_shape.size = abs(collider.size)
-			collision_shape.shape = box_shape
-		URDFCollider.Type.CYLINDER:
-			var cylinder_shape = CylinderShape3D.new()
-			cylinder_shape.height = abs(collider.length)
-			cylinder_shape.radius = abs(collider.radius)
-			collision_shape.shape = cylinder_shape
-		URDFCollider.Type.SPHERE:
-			var sphere_shape = SphereShape3D.new()
-			sphere_shape.radius = abs(collider.radius)
-			collision_shape.shape = sphere_shape
-		URDFCollider.Type.MESH:
-			var node = _mesh_from_filename(
-				collider.mesh_path, collider.origin_xyz, collider.origin_rpy,
-				options, source_path, null
-			)
-			if node is MeshInstance3D:
-				var mesh: Mesh = node.mesh
-				var shape: Shape3D = mesh.create_convex_shape(true, true)
-				if shape == null:
-					return null
-				collision_shape.transform = node.transform
-				collision_shape.shape = shape
-				return collision_shape
-			for child in node.get_children():
-				if child is MeshInstance3D:
-					var mesh: Mesh = node.mesh
-					var shape: Shape3D = mesh.create_convex_shape(true, true)
-					if shape == null:
-						return null
-					collision_shape.shape = shape
-					# FIXME: we assume there is only one mesh
-					return collision_shape
-		_:
-			push_error("Unsupported collider type: ", collider.type)
-			return null
-	
-	collision_shape.transform = xyz_rpy_to_transform3d(
-		collider.origin_xyz, collider.origin_rpy)
-
-	return collision_shape
