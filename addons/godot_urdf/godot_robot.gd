@@ -76,21 +76,30 @@ func init_data(
 		if child_node:
 			child_node.name = joint.name
 		self.add_joint(joint, local_transform)
-		self.create_godot_joint(joint)
+		self.create_godot_joint(joint, owner)
 
 	for link_name in links.keys():
 		var global_rel_transform = self.get_rel_transform(link_name)
 		var link_node = links[link_name]
 		link_node.transform = global_rel_transform
 
-func create_godot_joint(joint: URDFJoint):
+func create_godot_joint(joint: URDFJoint, owner: Node3D):
 	var collision_node_a = links.get(joint.parent)
 	var collision_node_b = links.get(joint.child)
-	if !collision_node_a or !collision_node_b:
+	if !collision_node_a:
+		# print(
+		# 	"Can not find parent joint " + joint.parent + " for " + joint.name)
+		return
+	if !collision_node_b:
+		# print(
+		# 	"Can not find child joint " + joint.child + " for " + joint.name)
 		return
 
+	# print(
+	# 	"Create joint:" + joint.name + ": " + 
+	# 	joint.parent + " -> " + joint.child)
 	var godot_joint: URDF6DOFJoint3D = URDF6DOFJoint3D.new()
-	godot_joint.update_joint(self, joint)
+	godot_joint.update_joint(self, owner, joint)
 
 	godot_joint.node_a = godot_joint.get_path_to(collision_node_a)
 	godot_joint.node_b = godot_joint.get_path_to(collision_node_b)

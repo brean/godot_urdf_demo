@@ -3,9 +3,12 @@ extends Generic6DOFJoint3D
 
 @export var joint: URDFJoint
 
-func update_joint(godot_robot: GodotRobot, joint: URDFJoint) -> void:
+func update_joint(
+		godot_robot: GodotRobot,
+		owner: Node3D,
+		joint: URDFJoint) -> void:
 	godot_robot.add_child(self)
-	self.owner = godot_robot.owner
+	self.owner = owner
 
 	self.joint = joint
 	self.name = "joint_" + joint.name

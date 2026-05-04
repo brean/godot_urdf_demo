@@ -1,6 +1,6 @@
 @tool
 extends Node3D
-class_name RobotController
+class_name WheeledRobotController
 
 @export var robot: GodotRobot
 
