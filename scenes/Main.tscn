@@ -274,20 +274,32 @@ materials = Dictionary[String, Vector4]({
 [sub_resource type="BoxShape3D" id="BoxShape3D_vua0o"]
 size = Vector3(0.14, 0.143, 0.14)
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_t70y2"]
-height = 0.018
-radius = 0.033
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t70y2"]
+albedo_color = Color(0.4, 0.4, 0.4, 1)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_8gny2"]
 height = 0.018
 radius = 0.033
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_s3wmy"]
-size = Vector3(0.03, 0.02, 0.009)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s3wmy"]
+albedo_color = Color(0.3, 0.3, 0.3, 1)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_gdcyb"]
+height = 0.018
+radius = 0.033
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oa6sj"]
+albedo_color = Color(0.3, 0.3, 0.3, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0f1tp"]
+size = Vector3(0.03, 0.02, 0.009)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_0qimb"]
 height = 0.0315
 radius = 0.055
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_in2eo"]
+albedo_color = Color(0.3, 0.3, 0.3, 1)
 
 [node name="Node3D" type="Node3D" unique_id=350618490]
 
@@ -340,80 +352,84 @@ light_color = Color(0, 0.5019608, 1, 1)
 omni_range = 6.0
 
 [node name="RobotNode" type="Node3D" parent="." unique_id=1116517572]
-transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, -0.050718084, 0.025321793, -0.3162039)
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, 0.02, 0)
 script = ExtResource("1_elqb8")
 urdf_file_path = "uid://ov6otpheq8va"
 package_folder = "res://urdf"
 
-[node name="turtlebot3_burger" type="Node3D" parent="RobotNode" unique_id=1242499913]
+[node name="turtlebot3_burger" type="Node3D" parent="RobotNode" unique_id=965083262]
 script = ExtResource("3_cvmbd")
 urdf = SubResource("Resource_5grtr")
 
-[node name="base_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=1472216714]
+[node name="base_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=187891239]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
 mass = 0.82573503
 script = ExtResource("10_ebg2g")
 link = SubResource("Resource_36rkl")
 
-[node name="base_link_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/base_joint" unique_id=1441107933]
+[node name="base_link_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/base_joint" unique_id=1908040046]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.07, 0)
 shape = SubResource("BoxShape3D_vua0o")
 
-[node name="base_link_mesh" type="MeshInstance3D" parent="RobotNode/turtlebot3_burger/base_joint" unique_id=1920952127]
+[node name="base_link_mesh" type="MeshInstance3D" parent="RobotNode/turtlebot3_burger/base_joint" unique_id=251226735]
 transform = Transform3D(0.001, 0, 0, 0, -4.371139e-11, 0.001, 0, -0.001, -4.371139e-11, -0.032, 0, 0)
+material_override = SubResource("StandardMaterial3D_t70y2")
 mesh = ExtResource("11_2ofn6")
 
-[node name="wheel_left_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=1566367999]
+[node name="wheel_left_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=1403387826]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, 0, 0.033, -0.08)
 mass = 0.02849894
 script = ExtResource("10_ebg2g")
 link = SubResource("Resource_gsxep")
 
-[node name="wheel_left_link_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/wheel_left_joint" unique_id=1713564958]
-shape = SubResource("CylinderShape3D_t70y2")
+[node name="wheel_left_link_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/wheel_left_joint" unique_id=1275541306]
+shape = SubResource("CylinderShape3D_8gny2")
 
-[node name="wheel_left_link_mesh" type="MeshInstance3D" parent="RobotNode/turtlebot3_burger/wheel_left_joint" unique_id=861642300]
+[node name="wheel_left_link_mesh" type="MeshInstance3D" parent="RobotNode/turtlebot3_burger/wheel_left_joint" unique_id=749590316]
 transform = Transform3D(0.001, 0, 0, 0, 0.0009999997, 7.9631803e-07, 0, -7.9631803e-07, 0.0009999997, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_s3wmy")
 mesh = ExtResource("12_xa025")
 
-[node name="wheel_right_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=1286871673]
+[node name="wheel_right_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=1015205327]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, 0, 0.033, 0.08)
 mass = 0.02849894
 script = ExtResource("10_ebg2g")
 link = SubResource("Resource_2c4at")
 
-[node name="wheel_right_link_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/wheel_right_joint" unique_id=1497963515]
-shape = SubResource("CylinderShape3D_8gny2")
+[node name="wheel_right_link_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/wheel_right_joint" unique_id=724179660]
+shape = SubResource("CylinderShape3D_gdcyb")
 
-[node name="wheel_right_link_mesh" type="MeshInstance3D" parent="RobotNode/turtlebot3_burger/wheel_right_joint" unique_id=732776485]
+[node name="wheel_right_link_mesh" type="MeshInstance3D" parent="RobotNode/turtlebot3_burger/wheel_right_joint" unique_id=327150124]
 transform = Transform3D(0.001, 0, 0, 0, 0.0009999997, 7.9631803e-07, 0, -7.9631803e-07, 0.0009999997, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_oa6sj")
 mesh = ExtResource("13_36rkl")
 
-[node name="caster_back_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=1876370195]
+[node name="caster_back_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=751984298]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, -0.081, 0.0059999996, 0)
 mass = 0.005
 script = ExtResource("10_ebg2g")
 link = SubResource("Resource_kxyth")
 
-[node name="caster_back_link_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/caster_back_joint" unique_id=1004348094]
+[node name="caster_back_link_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/caster_back_joint" unique_id=1551741599]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.001)
-shape = SubResource("BoxShape3D_s3wmy")
+shape = SubResource("BoxShape3D_0f1tp")
 
-[node name="scan_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=1069586127]
+[node name="scan_joint" type="RigidBody3D" parent="RobotNode/turtlebot3_burger" unique_id=1331078856]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.18200001, 0)
 mass = 0.114
 script = ExtResource("10_ebg2g")
 link = SubResource("Resource_pdwbg")
 
-[node name="base_scan_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/scan_joint" unique_id=2077240312]
+[node name="base_scan_collision" type="CollisionShape3D" parent="RobotNode/turtlebot3_burger/scan_joint" unique_id=1195369630]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.015, -0.0065, 0)
-shape = SubResource("CylinderShape3D_gdcyb")
+shape = SubResource("CylinderShape3D_0qimb")
 
-[node name="base_scan_mesh" type="MeshInstance3D" parent="RobotNode/turtlebot3_burger/scan_joint" unique_id=476636323]
+[node name="base_scan_mesh" type="MeshInstance3D" parent="RobotNode/turtlebot3_burger/scan_joint" unique_id=1470186329]
 transform = Transform3D(0.001, 0, 0, 0, -4.371139e-11, 0.001, 0, -0.001, -4.371139e-11, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_in2eo")
 mesh = ExtResource("14_fs0b5")
 
-[node name="joint_wheel_left_joint" type="Generic6DOFJoint3D" parent="RobotNode/turtlebot3_burger" unique_id=1272600412]
+[node name="joint_wheel_left_joint" type="Generic6DOFJoint3D" parent="RobotNode/turtlebot3_burger" unique_id=2104422507]
 transform = Transform3D(1, 0, 0, 0, 0.9999997, -0.0007962743, 0, 0.0007962743, 0.9999997, 0, 0.033, -0.08)
 node_a = NodePath("../base_joint")
 node_b = NodePath("../wheel_left_joint")
@@ -423,7 +439,7 @@ angular_motor_z/enabled = true
 script = ExtResource("15_ma7h6")
 joint = SubResource("Resource_ft6cd")
 
-[node name="joint_wheel_right_joint" type="Generic6DOFJoint3D" parent="RobotNode/turtlebot3_burger" unique_id=1305712644]
+[node name="joint_wheel_right_joint" type="Generic6DOFJoint3D" parent="RobotNode/turtlebot3_burger" unique_id=860012880]
 transform = Transform3D(1, 0, 0, 0, 0.9999997, -0.0007962743, 0, 0.0007962743, 0.9999997, 0, 0.033, 0.08)
 node_a = NodePath("../base_joint")
 node_b = NodePath("../wheel_right_joint")
@@ -433,7 +449,7 @@ angular_motor_z/enabled = true
 script = ExtResource("15_ma7h6")
 joint = SubResource("Resource_bb450")
 
-[node name="joint_caster_back_joint" type="Generic6DOFJoint3D" parent="RobotNode/turtlebot3_burger" unique_id=1645236291]
+[node name="joint_caster_back_joint" type="Generic6DOFJoint3D" parent="RobotNode/turtlebot3_burger" unique_id=1234672722]
 transform = Transform3D(1, 0, 0, 0, 0.0007962743, 0.9999997, 0, -0.9999997, 0.0007962743, -0.081, 0.0059999996, 0)
 node_a = NodePath("../base_joint")
 node_b = NodePath("../caster_back_joint")
@@ -442,7 +458,7 @@ angular_motor_z/enabled = true
 script = ExtResource("15_ma7h6")
 joint = SubResource("Resource_nfivy")
 
-[node name="joint_scan_joint" type="Generic6DOFJoint3D" parent="RobotNode/turtlebot3_burger" unique_id=1168258268]
+[node name="joint_scan_joint" type="Generic6DOFJoint3D" parent="RobotNode/turtlebot3_burger" unique_id=183670977]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.032, 0.18200001, 0)
 node_a = NodePath("../base_joint")
 node_b = NodePath("../scan_joint")
