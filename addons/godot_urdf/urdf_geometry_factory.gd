@@ -106,9 +106,13 @@ static func create_mesh_resource_visual(
 		_scale = opts.get("scale")
 	instance.scale = Vector3(_scale, _scale, _scale)
 
-	var ext = data.mesh_path.get_extension().to_lower()
-	if ext == "stl":
-		instance.rotate_x(-PI / 2)
+	if opts.get('rotate_x', null) != null:
+		# overwrite rotation
+		instance.rotate_x(opts['rotate_x'])
+	else:
+		var ext = data.mesh_path.get_extension().to_lower()
+		if ext == "stl":
+			instance.rotate_x(-PI / 2)
 
 # Collision
 static func create_box_collision(
@@ -151,38 +155,47 @@ static func create_mesh_resource_collision(
 	
 	if resource is Mesh:
 		_create_col_shape_from_mesh(
-			resource, urdf_transform, parent, owner)
+			resource, urdf_transform, parent, owner, opts)
 	elif resource is PackedScene:
 		var temp_scene = resource.instantiate()
 		_recursive_collision_gen(
-			temp_scene, urdf_transform, parent, owner)
+			temp_scene, urdf_transform, parent, owner, opts)
 		temp_scene.queue_free()
 
 
 static func _recursive_collision_gen(
 		node: Node, base_transform: Transform3D, 
-		parent: Node3D, owner: Node):
+		parent: Node3D, owner: Node,
+		opts: Dictionary):
 	if node is MeshInstance3D:
 		# Combine the URDF offset with the mesh's internal local transform
 		var final_transform = base_transform * node.transform
 		_create_col_shape_from_mesh(
-			node.mesh, final_transform, parent, owner)
+			node.mesh, final_transform, parent, owner, opts)
 	
 	for child in node.get_children():
 		_recursive_collision_gen(
-			child, base_transform, parent, owner)
+			child, base_transform, parent, owner, opts)
 
 
 static func _create_col_shape_from_mesh(
 		mesh: Mesh, tr: Transform3D, 
-		parent: Node3D, owner: Node):
+		parent: Node3D, owner: Node,
+		opts: Dictionary):
 	var shape = mesh.create_convex_shape(true, true)
 	if shape:
 		var coll = CollisionShape3D.new()
 		coll.shape = shape
+		coll.name = parent.name + "_collision"
 		parent.add_child(coll)
 		coll.owner = owner
 		coll.transform = tr
+		# TODO: check, if we always need to rotate by -90°
+		if opts.get('rotate_x', null) != null:
+			# overwrite rotation
+			coll.rotate_x(opts['rotate_x'])
+		else:
+			coll.rotate_x(-PI / 2)
 
 static func _finalize(
 		node: Node3D, parent: Node, owner: Node, 
