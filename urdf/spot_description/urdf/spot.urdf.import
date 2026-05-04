@@ -13,4 +13,4 @@ dest_files=["res://.godot/imported/spot.urdf-97663c34558cffd7b4b0ae14e6c099e8.ts
 [params]
 
 package_folder="res://urdf"
-scale=0.001
+scale=1

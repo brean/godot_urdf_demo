@@ -12,4 +12,5 @@ func update_link(
 	self.link = link
 	URDFPhysicsBody3D.update_link(
 		self, link, robot_node, owner_node, options, source_path)
-	self.center_of_mass = link.inertial.origin_xyz
+	if link.inertial:
+		self.center_of_mass = link.inertial.origin_xyz
