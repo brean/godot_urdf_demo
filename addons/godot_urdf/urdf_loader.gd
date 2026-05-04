@@ -10,7 +10,7 @@ extends Node3D
 
 @export_group("Package Directory")
 # Change "package://robot_description/meshes/..." to "res://urdf/..."
-@export_dir var package_folder: String = "res://"
+@export_dir var package_folder: String = "res://urdf"
 
 @export_group("Transform")
 @export var _position: Vector3 = Vector3(0, 0, 0)
@@ -28,6 +28,7 @@ func _load_urdf():
 
 	var parser = URDFXMLParser.new()
 
+	# TODO: load from YAML
 	var options = {
 		"package_folder": package_folder,
 		"scale": _scale,

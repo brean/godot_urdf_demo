@@ -12,5 +12,3 @@ dest_files=["res://.godot/imported/turtlebot3_waffle.urdf-2c5ab5951cc5a13c60ba11
 
 [params]
 
-package_folder="res://urdf"
-scale=0.001

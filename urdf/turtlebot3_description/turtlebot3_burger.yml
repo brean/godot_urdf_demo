@@ -1,0 +1,11 @@
+scale: 0.001
+package_folder: "res://urdf"
+
+controller:
+  type: two_wheel_diff_drive
+  front_left_wheel: joint_wheel_left_joint
+  front_right_wheel: joint_wheel_right_joint
+
+sensors:
+  - type: camera
+    parent: 

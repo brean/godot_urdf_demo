@@ -1,0 +1,33 @@
+scale: 0.001
+package_folder: "res://urdf"
+
+controller:
+  type: two_wheel_diff_drive
+  front_left_wheel: joint_wheel_left_joint
+  front_right_wheel: joint_wheel_right_joint
+
+# WARNING: Sensors are not implemented yet!
+sensors:
+  - type: camera
+    parent: camera_rgb_frame
+    # alternative:websocket
+    driver: rclgd 
+    parameter:
+      resolution: [1280, 720]
+      fps: 30
+      ros_topic: /image
+  - type: lidar
+    parent: base_scan
+    # alternative: websocket, visual (only draws red lines)
+    driver: rclgd
+    parameter:
+      max_distance: 8
+      min_distance: 0.05
+      max_angle: 1.5708
+      min_angle: -1.5708
+      noise: 0.001
+      # scan resolution
+      size: 255
+      # rate in hz
+      rate: 10
+      ros_topic: /scan
