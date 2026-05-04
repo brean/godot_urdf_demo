@@ -98,7 +98,9 @@ static func create_mesh_resource_visual(
 			instance, parent, owner, material,
 			data.origin_xyz, data.origin_rpy)
 	else:
-		push_error("Unknown Resource type.")
+		push_error(
+			"Error loading " + data.mesh_path +
+			" - Unknown Resource type:" + type_string(typeof(resource)))
 		return
 
 	var _scale = 1
