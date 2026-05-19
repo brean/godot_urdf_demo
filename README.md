@@ -6,6 +6,7 @@ URDF for Godot 4.6 using the native XML-parser and updated stl importer.
 
 ## included and used libraries:
  - godot-stl-io by @onze, [MIT license](https://github.com/onze/godot-stl-io/blob/development/addons/stl-io/license.txt): https://github.com/onze/godot-stl-io/
+ - YAML.gd by Vinicio Valbuena [MIT license](https://github.com/lowlevel-1989/YAML.gd/blob/master/LICENSE): https://github.com/lowlevel-1989/YAML.gd
 
 ## Usage
 Just clone this repo, open it as project in Godot and press play on the main Scene.

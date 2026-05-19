@@ -43,17 +43,15 @@ func _import(
 
 	# Create a new directory for the imported scene
 	# Get filename without extension
-	var basename= source_file.get_basename()
+	var basename = source_file.get_basename()
 	var source_dir_result = DirAccess.make_dir_recursive_absolute(basename)
 	if source_dir_result != OK:
 		push_error("Failed to create import directory: ", basename)
 		return source_dir_result
-	# TODO: load YAML
-	var options: Dictionary = {
-		"scale": 0.001,
-		"package_folder": "res://urdf",
-		"create_physics": true
-	}
+	
+	var options: Dictionary = URDFUtils.get_urdf_config(basename)
+	URDFUtils.apply_defaults(options)
+
 	var robot_node = urdf_parser.as_node3d(
 		source_file, options, null, null)
 	# robot_node.owner = scene

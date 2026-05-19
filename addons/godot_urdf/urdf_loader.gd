@@ -10,12 +10,12 @@ extends Node3D
 
 @export_group("Package Directory")
 # Change "package://robot_description/meshes/..." to "res://urdf/..."
-@export_dir var package_folder: String = "res://urdf"
+@export_dir var package_folder: String = ""
 
 @export_group("Transform")
 @export var _position: Vector3 = Vector3(0, 0, 0)
 @export var _rotation: Vector3 = Vector3(0, 0, 0)
-@export var _scale: float = 0.001
+@export var _scale: float = 0.0
 
 func _load_urdf():
 	for child in get_children():
@@ -28,12 +28,15 @@ func _load_urdf():
 
 	var parser = URDFXMLParser.new()
 
-	# TODO: load from YAML
-	var options = {
-		"package_folder": package_folder,
-		"scale": _scale,
-		"create_physics": true
-	}
+	var basename = urdf_file_path.get_basename()
+	var options: Dictionary = URDFUtils.get_urdf_config(basename)
+
+	if _scale > 0.0:
+		options["scale"] = _scale
+	if package_folder != "":
+		options["package_folder"] = package_folder
+
+	URDFUtils.apply_defaults(options)
 
 	var _root = get_tree().edited_scene_root
 
