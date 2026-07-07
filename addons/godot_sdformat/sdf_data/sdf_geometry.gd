@@ -26,7 +26,7 @@ func create_godot_shape() -> Shape3D:
 			var shape = SphereShape3D.new()
 			shape.radius = radius
 			return shape
-        # TODO: cone
+		# TODO: cone
 		GeometryType.CYLINDER:
 			var shape = CylinderShape3D.new()
 			shape.radius = radius
@@ -41,7 +41,7 @@ func create_godot_mesh() -> Mesh:
 	match type:
 		GeometryType.BOX:
 			var mesh = BoxMesh.new()
-			mesh.size = box_size
+			mesh.size = size
 			return mesh
 		GeometryType.SPHERE:
 			var mesh = SphereMesh.new()
