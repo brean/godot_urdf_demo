@@ -100,9 +100,9 @@ func is_ascii_stl(file: FileAccess):
 	var is_ascii = false
 	
 	if file_len == expected_binary_size:
+        # If sizes match, the "solid" header was a lie!
 		is_ascii = false
 	else:
-		# If sizes don't match, the "solid" header wasn't a lie
 		is_ascii = true
 
 	# Reset cursor and return
