@@ -11,12 +11,13 @@ config_version=5
 [application]
 
 config/name="godot_urdf"
+run/main_scene="uid://dw07evaoowol0"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_urdf/plugin.cfg", "res://addons/stl-io/plugin.cfg", "res://addons/yaml_dot_gd/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_sdformat/plugin.cfg", "res://addons/godot_urdf/plugin.cfg", "res://addons/stl_importer/plugin.cfg", "res://addons/yaml_dot_gd/plugin.cfg")
 
 [input]
 

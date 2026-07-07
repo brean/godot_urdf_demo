@@ -26,14 +26,14 @@ func _exit_tree() -> void:
 func _on_selection_changed():
 	var selected_nodes = EditorInterface.get_selection().get_selected_nodes()
 	
-	var active_robot: GodotRobot = null
+	var active_robot: GodotURDFRobot = null
 	
 	if selected_nodes.size() > 0:
 		var current_node = selected_nodes[0]
 		
-		# Walk up the scene tree to find a GodotRobot parent
+		# Walk up the scene tree to find a GodotURDFRobot parent
 		while current_node != null:
-			if current_node is GodotRobot:
+			if current_node is GodotURDFRobot:
 				active_robot = current_node
 				break
 			current_node = current_node.get_parent()

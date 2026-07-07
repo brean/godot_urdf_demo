@@ -3,7 +3,7 @@ class_name URDFPhysicsBody3D
 static func update_link(
 		body: PhysicsBody3D,
 		link: URDFLink,
-		robot_node: GodotRobot,
+		robot_node: GodotURDFRobot,
 		owner_node: Node3D,
 		options: Dictionary,
 		source_path: String) -> void:

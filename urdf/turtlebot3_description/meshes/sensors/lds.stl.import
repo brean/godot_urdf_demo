@@ -12,3 +12,4 @@ dest_files=["res://.godot/imported/lds.stl-c57288ebd60c1dffd771f3522000def3.mesh
 
 [params]
 
+print_debug=false

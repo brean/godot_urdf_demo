@@ -7,7 +7,7 @@ func as_node3d(
 		source_path: String,
 		options: Dictionary,
 		parent_node: Node3D,
-		owner_node: Node3D) -> GodotRobot:
+		owner_node: Node3D) -> GodotURDFRobot:
 	var start_time = Time.get_ticks_msec()
 	var robot: URDFRobot = parse(source_path)
 	if source_path.begins_with("uid://"):
@@ -22,7 +22,7 @@ func as_node3d(
 	# tree structure, the robots collision and visual elements
 	# are connected to this as well, NOT to their parents in the URDF
 	# structure!
-	var robot_node = GodotRobot.new()
+	var robot_node = GodotURDFRobot.new()
 	robot_node.init_data(
 		robot, parent_node, owner_node, options, source_path)
 

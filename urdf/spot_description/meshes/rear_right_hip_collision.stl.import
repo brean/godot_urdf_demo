@@ -9,3 +9,7 @@ path="res://.godot/imported/rear_right_hip_collision.stl-4075da5628b5e30b3d13966
 
 source_file="res://urdf/spot_description/meshes/rear_right_hip_collision.stl"
 dest_files=["res://.godot/imported/rear_right_hip_collision.stl-4075da5628b5e30b3d139662d345ede0.mesh"]
+
+[params]
+
+print_debug=false

@@ -9,3 +9,7 @@ path="res://.godot/imported/front_right_lower_leg_collision.stl-b3e32f6d47cea034
 
 source_file="res://urdf/spot_description/meshes/front_right_lower_leg_collision.stl"
 dest_files=["res://.godot/imported/front_right_lower_leg_collision.stl-b3e32f6d47cea0344c4f5220dd43358f.mesh"]
+
+[params]
+
+print_debug=false

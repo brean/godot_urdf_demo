@@ -1,5 +1,5 @@
 @tool
-class_name GodotRobot
+class_name GodotURDFRobot
 extends Node3D
 
 var _transform_cache: Dictionary[String, Transform3D] = {}

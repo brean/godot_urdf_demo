@@ -12,3 +12,4 @@ dest_files=["res://.godot/imported/left_tire.stl-2720660d7bdab224ce2e7232c7b5b11
 
 [params]
 
+print_debug=false

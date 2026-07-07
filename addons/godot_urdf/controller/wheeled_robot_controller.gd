@@ -2,7 +2,7 @@
 extends Node3D
 class_name WheeledRobotController
 
-@export var robot: GodotRobot
+@export var robot: GodotURDFRobot
 
 @export var max_speed: float = 20.0
 
@@ -63,8 +63,8 @@ func apply_motor_velocity(joint: Generic6DOFJoint3D, target_velocity: float):
 			Generic6DOFJoint3D.FLAG_ENABLE_MOTOR,
 			true)
 
-func _get_property_list():
-	var list = []
+func _get_property_list() -> Array[Dictionary]:
+	var list: Array[Dictionary] = []
 	list.append({name = "front_left_wheel", type = TYPE_STRING})
 	list.append({name = "front_right_wheel", type = TYPE_STRING})
 	match mobile_type:

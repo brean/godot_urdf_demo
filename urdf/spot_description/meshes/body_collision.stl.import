@@ -9,3 +9,7 @@ path="res://.godot/imported/body_collision.stl-a1e6a2abd28112dd905126551699ceb9.
 
 source_file="res://urdf/spot_description/meshes/body_collision.stl"
 dest_files=["res://.godot/imported/body_collision.stl-a1e6a2abd28112dd905126551699ceb9.mesh"]
+
+[params]
+
+print_debug=false

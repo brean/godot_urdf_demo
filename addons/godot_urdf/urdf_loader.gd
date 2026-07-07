@@ -19,7 +19,7 @@ extends Node3D
 
 func _load_urdf():
 	for child in get_children():
-		if child is GodotRobot:
+		if child is GodotURDFRobot:
 			child.free()
 
 	if urdf_file_path.is_empty():

@@ -354,7 +354,7 @@ omni_range = 6.0
 [node name="RobotNode" type="Node3D" parent="." unique_id=1116517572]
 transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, 0.02, 0)
 script = ExtResource("1_elqb8")
-urdf_file_path = "uid://ov6otpheq8va"
+urdf_file_path = "uid://c1bckxyfw3saj"
 package_folder = "res://urdf"
 
 [node name="turtlebot3_burger" type="Node3D" parent="RobotNode" unique_id=367154237]
