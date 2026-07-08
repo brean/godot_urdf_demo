@@ -1,4 +1,16 @@
 # Godot Robotics Demo
+
+---
+
+---
+
+## This project moved to Codeberg: 
+## https://codeberg.org/brean/godot_robotics_demo! ##
+
+---
+
+---
+
 Demo to show the URDF and Godot Robotics for Godot 4+ using the native XML-parser and updated stl importer.
 
 ## included and modified libraries:
